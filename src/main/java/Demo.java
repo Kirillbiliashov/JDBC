@@ -15,9 +15,10 @@ public class Demo {
     try (Connection conn = Demo.getConnection()) {
       final Table students = new Table("Students", colNames, colTypes, conn);
       students.setPrimaryKeyField(1)
-          .setAutoIncCol(1)
+          .setAutoIncCol("Id")
           .setForeignKey("UniversityGroup", "UniversityGroups", "Name")
           .setNotNullColumns()
+          .setUniqueCol("LastName")
           .create();
     } catch (Exception e) {
       e.printStackTrace();

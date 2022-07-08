@@ -9,7 +9,7 @@ public class Table {
   private final String LINE_SEPARATOR = ", \n";
   private final List<String> foreignKeyConstraints;
   private final List<Integer> autoIncColIndices;
-  private final Map<String, String> defaultValues;
+  private final Map<Integer, String> defaultValues;
   private final List<String> uniqueColNames;
   private String primaryKeyColName;
   private int primaryKeyColIdx;
@@ -40,9 +40,9 @@ public class Table {
           " (" + this.createColumnsStr() + this.getUniqueKeyStr() +
           this.getPrimaryKeyStr() + this.getForeignKeyStr() + ");";
       System.out.println(sqlStr);
-      if (stmt.execute(sqlStr)) {
-        System.out.println("Table successfully added to the database");
-      }
+//      if (stmt.execute(sqlStr)) {
+//        System.out.println("Table successfully added to the database");
+//      }
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -50,7 +50,7 @@ public class Table {
 
   private String getForeignKeyStr() {
     final StringBuilder res = new StringBuilder(LINE_SEPARATOR);
-    for (final String fkConstraint : foreignKeyConstraints) {
+    for (final String fkConstraint : this.foreignKeyConstraints) {
       res.append(fkConstraint).append(LINE_SEPARATOR);
     }
     return res.substring(0, res.length() - LINE_SEPARATOR.length());
@@ -70,7 +70,7 @@ public class Table {
       final String colName = this.colNames[i];
       final String notNullStr = this.getNotNullStr(i + 1);
       final String autoIncStr = this.getAutoIncStr(i + 1);
-      final String defaultValueStr = this.getDefaultValueStr(colName);
+      final String defaultValueStr = this.getDefaultValueStr(i + 1);
       res.append(colName).append(" ").append(colTypes[i]).append(notNullStr)
           .append(autoIncStr).append(defaultValueStr).append(LINE_SEPARATOR);
     }
@@ -87,41 +87,58 @@ public class Table {
     return isAutoInc ? " AUTO_INCREMENT" : "";
   }
 
-  private String getDefaultValueStr(final String colName) {
-    final String defaultValue = this.defaultValues.get(colName);
+  private String getDefaultValueStr(final int colIdx) {
+    final String defaultValue = this.defaultValues.get(colIdx);
     return defaultValue == null ? "" : " DEFAULT " + defaultValue;
   }
 
 
   private String getPrimaryKeyStr() {
-    if (primaryKeyColName == null) {
-      primaryKeyColName = this.colNames[primaryKeyColIdx - 1];
+    if (this.primaryKeyColName == null) {
+      this.primaryKeyColName = this.colNames[this.primaryKeyColIdx - 1];
     }
     return LINE_SEPARATOR + "PRIMARY KEY (" + primaryKeyColName + ")";
   }
 
 
-  public void setPrimaryKeyField(final String colName) {
-    this.primaryKeyColName = colName;
+  public Table setPrimaryKeyField(final String colName) {
+    final int idx = this.indexOf(colName);
+    if (idx != -1) {
+      this.primaryKeyColName = colName;
+    }
+    return this;
   }
 
   public Table setPrimaryKeyField(final int colIdx) {
-    this.primaryKeyColIdx = colIdx;
+    if (colIdx <= this.colNames.length) {
+      this.primaryKeyColIdx = colIdx;
+    }
     return this;
   }
 
   public Table setForeignKey(final String colName, final String foreignTable,
                              final String foreignColName) {
-    final String constraintStr = "FOREIGN KEY (" + colName + ") REFERENCES " +
-        foreignTable + "(" + foreignColName + ")";
-    foreignKeyConstraints.add(constraintStr);
+    if (this.indexOf(colName) != -1) {
+      final String constraintStr = "FOREIGN KEY (" + colName + ") REFERENCES " +
+          foreignTable + "(" + foreignColName + ")";
+      this.foreignKeyConstraints.add(constraintStr);
+    }
     return this;
   }
 
+  public Table setForeignKey(final int colIdx, final String foreignTable,
+                             final String foreignColName) {
+    if (colIdx <= this.colNames.length) {
+      final String constraintStr = "FOREIGN KEY (" + this.colNames[colIdx - 1] +
+          ") REFERENCES " + foreignTable + "(" + foreignColName + ")";
+      this.foreignKeyConstraints.add(constraintStr);
+    }
+    return this;
+  }
 
   public Table setNotNullColumns() {
-    for (int i = 0; i < colNames.length; i++) {
-      notNullColsIndices.add(i + 1);
+    for (int i = 0; i < this.colNames.length; i++) {
+      this.notNullColsIndices.add(i + 1);
     }
     return this;
   }
@@ -131,29 +148,65 @@ public class Table {
     return this;
   }
 
+  public Table setNotNullColumns(final String... colNames) {
+    for (final String colName : colNames) {
+      final int idx = this.indexOf(colName);
+      if (!(idx == -1 || this.notNullColsIndices.contains(idx + 1))) {
+        this.notNullColsIndices.add(idx + 1);
+      }
+    }
+    return this;
+  }
+
+
   public Table setDefaultValue(final int colIdx, final String defaultVal) {
-    this.defaultValues.put(this.colNames[colIdx - 1], defaultVal);
+    this.defaultValues.put(colIdx, defaultVal);
     return this;
   }
 
   public Table setDefaultValue(final String colName, final String defaultVal) {
-    this.defaultValues.put(colName, defaultVal);
+    final int idx = this.indexOf(colName);
+    if (idx != -1) {
+      this.defaultValues.put(idx + 1, defaultVal);
+    }
     return this;
   }
 
   public Table setAutoIncCol(final int colIdx) {
-    this.autoIncColIndices.add(colIdx);
+    if (colIdx <= this.colNames.length && !this.autoIncColIndices.contains(colIdx)) {
+      this.autoIncColIndices.add(colIdx);
+    }
     return this;
   }
 
+  public Table setAutoIncCol(final String colName) {
+    final int idx = this.indexOf(colName);
+    if (idx != -1 && !this.autoIncColIndices.contains(idx + 1)) {
+      this.autoIncColIndices.add(idx + 1);
+    }
+    return this;
+  }
+
+
   public Table setUniqueCol(final int colIdx) {
-    this.uniqueColNames.add(this.colNames[colIdx - 1]);
+    if (colIdx <= this.colNames.length) {
+      this.uniqueColNames.add(this.colNames[colIdx - 1]);
+    }
     return this;
   }
 
   public Table setUniqueCol(final String colName) {
-    this.uniqueColNames.add(colName);
+    if (this.indexOf(colName) != -1 && !this.uniqueColNames.contains(colName)) {
+      this.uniqueColNames.add(colName);
+    }
     return this;
+  }
+
+  private int indexOf(final String colStr) {
+    for (int i = 0; i < this.colNames.length; i++) {
+      if (colStr.equals(this.colNames[i])) return i;
+    }
+    return -1;
   }
 
 }
