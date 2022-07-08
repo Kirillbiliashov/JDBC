@@ -20,6 +20,7 @@ public class Demo {
           .setNotNullColumns()
           .setUniqueCol("LastName")
           .create();
+      students.insert("Petrov", "Vasiliy", "Male", Date.valueOf("2000-12-10"), "some street", "IM13");
     } catch (Exception e) {
       e.printStackTrace();
     }

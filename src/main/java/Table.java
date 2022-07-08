@@ -14,6 +14,8 @@ public class Table {
   private String primaryKeyColName;
   private int primaryKeyColIdx;
   private List<Integer> notNullColsIndices;
+  private boolean isCreated;
+  private ResultSet rs;
 
   public Table(final String tableName, final String[] colNames,
                final String[] colTypes, final Connection conn) throws Exception {
@@ -40,12 +42,45 @@ public class Table {
           " (" + this.createColumnsStr() + this.getUniqueKeyStr() +
           this.getPrimaryKeyStr() + this.getForeignKeyStr() + ");";
       System.out.println(sqlStr);
-//      if (stmt.execute(sqlStr)) {
-//        System.out.println("Table successfully added to the database");
-//      }
+      if (!this.isCreated && stmt.execute(sqlStr)) {
+        System.out.println("Table successfully added to the database");
+        this.isCreated = true;
+      }
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  public void insert(final Object... values) {
+    try (final Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+        ResultSet.CONCUR_UPDATABLE)) {
+      final ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName);
+      rs.moveToInsertRow();
+      this.createNewRow(values, rs);
+      rs.insertRow();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void createNewRow(final Object[] values, final ResultSet rs)
+      throws SQLException {
+    ResultSetMetaData metadata = rs.getMetaData();
+    final List<String> insertColNames = this.getInsertCols(metadata);
+    for (int i = 0; i < insertColNames.size(); i++) {
+      rs.updateObject(insertColNames.get(i), values[i]);
+    }
+  }
+
+  private List<String> getInsertCols(final ResultSetMetaData metadata)
+      throws SQLException {
+    final List<String> colNames = new ArrayList<>(this.colNames.length);
+    for (int i = 0; i < this.colNames.length; i++) {
+      if (!metadata.isAutoIncrement(i + 1)) {
+        colNames.add(metadata.getColumnLabel(i + 1));
+      }
+    }
+    return colNames;
   }
 
   private String getForeignKeyStr() {
