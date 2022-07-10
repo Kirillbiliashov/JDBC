@@ -43,6 +43,9 @@ public class Demo {
       students.select()
           .where("LastName", "IN", "('Balor', 'Gonzalez')")
           .or("Gender", "=", "'Female'")
+          .orderBy("Gender", true)
+          .orderBy("Id", false)
+          .limit(3)
           .execute(rs -> {
             try {
               SQLTableLogger.create(rs).printTable();

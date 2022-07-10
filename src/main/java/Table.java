@@ -63,13 +63,13 @@ public class Table {
   }
 
   public SelectBuilder select() {
-    return new SelectBuilder(this.conn, "SELECT * FROM " + tableName);
+    final String ALL_COLS_STR = "*";
+    return new SelectBuilder(this.conn, this.tableName,
+        new String[]{ALL_COLS_STR});
   }
 
   public SelectBuilder select(final String... colNames) {
-    final String joinedColNames = String.join(", ", colNames);
-    return new SelectBuilder(this.conn, "SELECT " + joinedColNames +
-        " FROM " + tableName);
+    return new SelectBuilder(this.conn, this.tableName, colNames);
   }
 
   private void createNewRow(final Object[] values, final ResultSet rs)
@@ -252,5 +252,4 @@ public class Table {
     }
     return -1;
   }
-
 }

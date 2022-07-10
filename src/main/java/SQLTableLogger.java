@@ -59,7 +59,7 @@ public class SQLTableLogger {
 
   private String getPaddedString(final int newStrLength, final String str) {
     final int ACTUAL_LENGTH = str.length();
-    return str + " ".repeat(newStrLength - ACTUAL_LENGTH);
+    return str + " ".repeat(Math.max(0, newStrLength - ACTUAL_LENGTH));
   }
 
   private String getTableBorder(final int rowLength) {
