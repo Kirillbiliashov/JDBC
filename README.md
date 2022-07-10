@@ -7,6 +7,10 @@ The project is intended for convenient interaction with MySQL tables using JDBC.
 - AUTO_INCREMENT columns
 - Unique Columns
 - Default values for columns
+2. Insertion of new records into the table
+3. Retrieval of table data
+- WHERE CLAUSE
+- AND/OR/NOT Operators
 
 <sub>To be continued...</sub>
 
