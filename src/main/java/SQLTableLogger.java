@@ -6,7 +6,7 @@ public class SQLTableLogger {
   private final ResultSetMetaData metadata;
   private final int cols;
   private final String COL_DELIMITER = "|";
-  private final String TABLE_DELIMITER = "-";
+  private final String ROW_DELIMITER = "-";
 
   private SQLTableLogger(final ResultSet rs) throws SQLException {
     this.rs = rs;
@@ -47,30 +47,23 @@ public class SQLTableLogger {
 
   private String getTableHeader(final List<String> colNames,
                                 final List<Integer> colMaxSizes) {
-    String tableHeader = "";
+    final StringBuilder tableHeader = new StringBuilder();
     for (final String colName : colNames) {
       final int idx = colNames.indexOf(colName);
       final int colMaxSize = colMaxSizes.get(idx);
-      tableHeader += this.getPaddedString(colMaxSize, colName) + COL_DELIMITER;
+      tableHeader.append(this.getPaddedString(colMaxSize, colName))
+          .append(COL_DELIMITER);
     }
-    return tableHeader;
+    return tableHeader.toString();
   }
 
   private String getPaddedString(final int newStrLength, final String str) {
     final int ACTUAL_LENGTH = str.length();
-    String newStr = str;
-    for (int i = 0; i < newStrLength - ACTUAL_LENGTH; i++) {
-      newStr += " ";
-    }
-    return newStr;
+    return str + " ".repeat(newStrLength - ACTUAL_LENGTH);
   }
 
   private String getTableBorder(final int rowLength) {
-    String borderStr = "";
-    for (int i = 0; i < rowLength; i++) {
-      borderStr += TABLE_DELIMITER;
-    }
-    return borderStr;
+    return ROW_DELIMITER.repeat(rowLength);
   }
 
   private void printRowData(final ResultSet rs, final List<String> colNames,
