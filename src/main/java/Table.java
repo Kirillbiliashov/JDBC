@@ -11,11 +11,10 @@ public class Table {
   private final List<Integer> autoIncColIndices;
   private final Map<Integer, String> defaultValues;
   private final List<String> uniqueColNames;
+  private final int colsCount;
   private String primaryKeyColName;
   private int primaryKeyColIdx;
   private List<Integer> notNullColsIndices;
-  private boolean isCreated;
-  private ResultSet rs;
 
   public Table(final String tableName, final String[] colNames,
                final String[] colTypes, final Connection conn) throws Exception {
@@ -28,6 +27,7 @@ public class Table {
     this.tableName = tableName;
     this.colNames = colNames;
     this.colTypes = colTypes;
+    this.colsCount = colNames.length;
     this.foreignKeyConstraints = new ArrayList<>(colNames.length);
     this.notNullColsIndices = new ArrayList<>(colNames.length);
     this.autoIncColIndices = new ArrayList<>(colNames.length);
@@ -42,9 +42,8 @@ public class Table {
           " (" + this.createColumnsStr() + this.getUniqueKeyStr() +
           this.getPrimaryKeyStr() + this.getForeignKeyStr() + ");";
       System.out.println(sqlStr);
-      if (!this.isCreated && stmt.execute(sqlStr)) {
+      if (stmt.execute(sqlStr)) {
         System.out.println("Table successfully added to the database");
-        this.isCreated = true;
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -63,6 +62,16 @@ public class Table {
     }
   }
 
+  public SelectBuilder select() {
+    return new SelectBuilder(this.conn, "SELECT * FROM " + tableName);
+  }
+
+  public SelectBuilder select(final String... colNames) {
+    final String joinedColNames = String.join(", ", colNames);
+    return new SelectBuilder(this.conn, "SELECT " + joinedColNames +
+        " FROM " + tableName);
+  }
+
   private void createNewRow(final Object[] values, final ResultSet rs)
       throws SQLException {
     ResultSetMetaData metadata = rs.getMetaData();
@@ -74,8 +83,8 @@ public class Table {
 
   private List<String> getInsertCols(final ResultSetMetaData metadata)
       throws SQLException {
-    final List<String> colNames = new ArrayList<>(this.colNames.length);
-    for (int i = 0; i < this.colNames.length; i++) {
+    final List<String> colNames = new ArrayList<>(this.colsCount);
+    for (int i = 0; i < this.colsCount; i++) {
       if (!metadata.isAutoIncrement(i + 1)) {
         colNames.add(metadata.getColumnLabel(i + 1));
       }
@@ -101,12 +110,12 @@ public class Table {
 
   private String createColumnsStr() {
     StringBuilder res = new StringBuilder();
-    for (int i = 0; i < colNames.length; i++) {
+    for (int i = 0; i < this.colsCount; i++) {
       final String colName = this.colNames[i];
       final String notNullStr = this.getNotNullStr(i + 1);
       final String autoIncStr = this.getAutoIncStr(i + 1);
       final String defaultValueStr = this.getDefaultValueStr(i + 1);
-      res.append(colName).append(" ").append(colTypes[i]).append(notNullStr)
+      res.append(colName).append(" ").append(this.colTypes[i]).append(notNullStr)
           .append(autoIncStr).append(defaultValueStr).append(LINE_SEPARATOR);
     }
     return res.substring(0, res.length() - LINE_SEPARATOR.length());
@@ -132,7 +141,7 @@ public class Table {
     if (this.primaryKeyColName == null) {
       this.primaryKeyColName = this.colNames[this.primaryKeyColIdx - 1];
     }
-    return LINE_SEPARATOR + "PRIMARY KEY (" + primaryKeyColName + ")";
+    return LINE_SEPARATOR + "PRIMARY KEY (" + this.primaryKeyColName + ")";
   }
 
 
@@ -145,7 +154,7 @@ public class Table {
   }
 
   public Table setPrimaryKeyField(final int colIdx) {
-    if (colIdx <= this.colNames.length) {
+    if (colIdx <= this.colsCount) {
       this.primaryKeyColIdx = colIdx;
     }
     return this;
@@ -163,7 +172,7 @@ public class Table {
 
   public Table setForeignKey(final int colIdx, final String foreignTable,
                              final String foreignColName) {
-    if (colIdx <= this.colNames.length) {
+    if (colIdx <= this.colsCount) {
       final String constraintStr = "FOREIGN KEY (" + this.colNames[colIdx - 1] +
           ") REFERENCES " + foreignTable + "(" + foreignColName + ")";
       this.foreignKeyConstraints.add(constraintStr);
@@ -172,7 +181,7 @@ public class Table {
   }
 
   public Table setNotNullColumns() {
-    for (int i = 0; i < this.colNames.length; i++) {
+    for (int i = 0; i < this.colsCount; i++) {
       this.notNullColsIndices.add(i + 1);
     }
     return this;
@@ -208,7 +217,7 @@ public class Table {
   }
 
   public Table setAutoIncCol(final int colIdx) {
-    if (colIdx <= this.colNames.length && !this.autoIncColIndices.contains(colIdx)) {
+    if (colIdx <= this.colsCount && !this.autoIncColIndices.contains(colIdx)) {
       this.autoIncColIndices.add(colIdx);
     }
     return this;
@@ -224,7 +233,7 @@ public class Table {
 
 
   public Table setUniqueCol(final int colIdx) {
-    if (colIdx <= this.colNames.length) {
+    if (colIdx <= this.colsCount) {
       this.uniqueColNames.add(this.colNames[colIdx - 1]);
     }
     return this;
@@ -238,7 +247,7 @@ public class Table {
   }
 
   private int indexOf(final String colStr) {
-    for (int i = 0; i < this.colNames.length; i++) {
+    for (int i = 0; i < this.colsCount; i++) {
       if (colStr.equals(this.colNames[i])) return i;
     }
     return -1;
