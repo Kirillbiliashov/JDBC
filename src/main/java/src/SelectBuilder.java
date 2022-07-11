@@ -1,3 +1,5 @@
+package src;
+
 import java.sql.*;
 import java.util.function.Consumer;
 
@@ -32,7 +34,8 @@ public class SelectBuilder {
   }
 
   public SelectBuilder whereExists(final SelectBuilder selectBuilder) {
-    this.constraintsSB.append(" WHERE EXISTS (").append(selectBuilder.getSelectStatement()).append(")");
+    final String selectStmt = selectBuilder.getSelectStatement();
+    this.constraintsSB.append(" WHERE EXISTS (").append(selectStmt).append(")");
     return this;
   }
 

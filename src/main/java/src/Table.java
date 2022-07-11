@@ -1,3 +1,5 @@
+package src;
+
 import java.sql.*;
 import java.util.*;
 
@@ -36,31 +38,32 @@ public class Table {
     this.conn = conn;
   }
 
-  public void create() {
+  public void create() throws SQLException {
     try (final Statement stmt = this.conn.createStatement()) {
       final String sqlStr = "CREATE TABLE IF NOT EXISTS " + this.tableName +
           " (" + this.createColumnsStr() + this.getUniqueKeyStr() +
           this.getPrimaryKeyStr() + this.getForeignKeyStr() + ");";
       System.out.println(sqlStr);
       if (stmt.execute(sqlStr)) {
-        System.out.println("Table successfully added to the database");
+        System.out.println("src.Table successfully added to the database");
       }
-    } catch (Exception e) {
-      e.printStackTrace();
     }
   }
 
   public void insert(final Object... values) {
+    this.insert(values);
+  }
+
+  public void insert(final String[] values) throws SQLException {
     try (final Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
         ResultSet.CONCUR_UPDATABLE)) {
       final ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName);
       rs.moveToInsertRow();
       this.createNewRow(values, rs);
       rs.insertRow();
-    } catch (Exception e) {
-      e.printStackTrace();
     }
   }
+
 
   public SelectBuilder select() {
     final String ALL_COLS_STR = "*";
@@ -145,11 +148,9 @@ public class Table {
   }
 
 
-  public Table setPrimaryKeyField(final String colName) {
-    final int idx = this.indexOf(colName);
-    if (idx != -1) {
-      this.primaryKeyColName = colName;
-    }
+  public Table setPrimaryKeyField(final String... colNames) {
+    final String primaryColNames = String.join(", ", colNames);
+    this.primaryKeyColName = primaryColNames;
     return this;
   }
 
@@ -161,10 +162,12 @@ public class Table {
   }
 
   public Table setForeignKey(final String colName, final String foreignTable,
-                             final String foreignColName) {
+                             final String foreignColName,
+                             final boolean isCascadeDelete) {
     if (this.indexOf(colName) != -1) {
+      final String cascadeDeleteStr = isCascadeDelete ? " ON DELETE CASCADE" : "";
       final String constraintStr = "FOREIGN KEY (" + colName + ") REFERENCES " +
-          foreignTable + "(" + foreignColName + ")";
+          foreignTable + "(" + foreignColName + ")" + cascadeDeleteStr;
       this.foreignKeyConstraints.add(constraintStr);
     }
     return this;
