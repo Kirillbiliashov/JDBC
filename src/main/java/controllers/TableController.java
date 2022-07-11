@@ -1,4 +1,4 @@
-package Controllers;
+package controllers;
 
 import src.Table;
 
@@ -17,11 +17,12 @@ public abstract class TableController {
       this.table.insert(row);
     }
   }
-
+  protected abstract String getTableName();
   protected abstract String[] getColNames();
 
   protected abstract String[] getColTypes();
 
   protected abstract String[][] getData();
+
 
 }

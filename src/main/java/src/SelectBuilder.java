@@ -4,12 +4,15 @@ import java.sql.*;
 import java.util.function.Consumer;
 
 public class SelectBuilder {
+
   private final Connection conn;
   private final String tableName;
   private final StringBuilder constraintsSB = new StringBuilder();
   private final String[] selectColNames;
   private boolean isOrdered;
   private boolean isSelfJoin;
+  private String insertTable;
+  private String[]  insertTableColNames;
 
   public SelectBuilder(final Connection conn, final String tableName,
                        final String[] selectColNames) {
@@ -36,6 +39,22 @@ public class SelectBuilder {
   public SelectBuilder whereExists(final SelectBuilder selectBuilder) {
     final String selectStmt = selectBuilder.getSelectStatement();
     this.constraintsSB.append(" WHERE EXISTS (").append(selectStmt).append(")");
+    return this;
+  }
+
+  public SelectBuilder whereAny(final String colName, final String operator,
+                                final SelectBuilder selectBuilder) {
+    final String selectStmt = selectBuilder.getSelectStatement();
+    this.constraintsSB.append(" WHERE ").append(colName).append(operator).append("ANY (")
+        .append(selectStmt).append(")");
+    return this;
+  }
+
+  public SelectBuilder whereAll(final String colName, final String operator,
+                                final SelectBuilder selectBuilder) {
+    final String selectStmt = selectBuilder.getSelectStatement();
+    this.constraintsSB.append(" WHERE ").append(colName).append(operator).append("ALL (")
+        .append(selectStmt).append(")");
     return this;
   }
 
@@ -134,6 +153,11 @@ public class SelectBuilder {
     this.isSelfJoin = true;
     return this;
   }
+  public SelectBuilder insertInto(final String tableName, final String... colNames) {
+    this.insertTable = tableName;
+    this.insertTableColNames = colNames;
+    return this;
+  }
 
 
   private String buildJoinExpression(final String relatedColName,
@@ -150,13 +174,20 @@ public class SelectBuilder {
   }
 
   public String getSelectStatement() {
-    final StringBuilder selectStrBuilder = new StringBuilder("SELECT ");
     final String colNamesSequence = String.join(", ", this.selectColNames);
+    final StringBuilder selectStrBuilder = new StringBuilder(this.getInsertStr());
     final String tableName = this.isSelfJoin ? this.tableName + " A, " +
         this.tableName + " B " : this.tableName;
-    return selectStrBuilder.append(colNamesSequence).append(" FROM ")
-        .append(tableName).append(constraintsSB).toString();
+    return selectStrBuilder.append("SELECT ").append(colNamesSequence)
+        .append(" FROM ").append(tableName).append(constraintsSB).toString();
   }
+
+  private String getInsertStr() {
+    if (this.insertTable == null) return "";
+    return "INSERT INTO " + this.insertTable + " (" +
+        String.join(", ", this.insertTableColNames) + ") ";
+  }
+
 
   public void execute(final Consumer<ResultSet> fn) {
     try (final Statement stmt = this.conn.createStatement()) {
@@ -168,4 +199,5 @@ public class SelectBuilder {
       e.printStackTrace();
     }
   }
+
 }

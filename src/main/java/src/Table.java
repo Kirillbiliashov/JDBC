@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.*;
 
 public class Table {
+
   private final String tableName;
   private final String[] colNames;
   private final String[] colTypes;
@@ -45,10 +46,21 @@ public class Table {
           this.getPrimaryKeyStr() + this.getForeignKeyStr() + ");";
       System.out.println(sqlStr);
       if (stmt.execute(sqlStr)) {
-        System.out.println("src.Table successfully added to the database");
+        System.out.println("table successfully added to the database");
       }
     }
   }
+
+  public void drop() throws SQLException {
+    try (final Statement stmt = this.conn.createStatement()) {
+      final String sqlStr = "DROP TABLE IF EXISTS " + this.tableName;
+      System.out.println(sqlStr);
+      if (stmt.execute(sqlStr)) {
+        System.out.println("table successfully dropped from the database");
+      }
+    }
+  }
+
 
   public void insert(final Object... values) {
     this.insert(values);
@@ -255,4 +267,5 @@ public class Table {
     }
     return -1;
   }
+
 }

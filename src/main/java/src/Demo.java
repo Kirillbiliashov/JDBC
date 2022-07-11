@@ -1,6 +1,6 @@
 package src;
 
-import Controllers.*;
+import controllers.*;
 
 import java.sql.*;
 
@@ -31,4 +31,5 @@ public class Demo {
       e.printStackTrace();
     }
   }
+
 }

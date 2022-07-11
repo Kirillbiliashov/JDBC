@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.*;
 
 public class SQLTableLogger {
+
   private final ResultSet rs;
   private final ResultSetMetaData metadata;
   private final int cols;
@@ -80,4 +81,5 @@ public class SQLTableLogger {
     }
     System.out.println(rowStr);
   }
+
 }

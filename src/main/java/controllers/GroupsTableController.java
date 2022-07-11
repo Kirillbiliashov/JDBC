@@ -1,4 +1,4 @@
-package Controllers;
+package controllers;
 
 import src.Table;
 
@@ -7,10 +7,14 @@ import java.sql.Connection;
 public class GroupsTableController extends TableController {
 
   public void instantiateTable(final Connection conn) throws Exception {
-    final Table groupsTable = new Table("UniversityGroups", this.getColNames(),
+    final Table groupsTable = new Table(this.getTableName(), this.getColNames(),
         this.getColTypes(), conn);
     groupsTable.setPrimaryKeyField(1).setNotNullColumns().create();
     this.table = groupsTable;
+  }
+
+  protected String getTableName() {
+    return "UniversityGroups";
   }
 
   protected String[] getColNames() {

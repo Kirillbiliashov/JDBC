@@ -1,4 +1,4 @@
-package Controllers;
+package controllers;
 
 import src.Table;
 
@@ -7,7 +7,7 @@ import java.sql.Connection;
 public class GroupDisciplineTableController extends TableController {
 
   public void instantiateTable(final Connection conn) throws Exception {
-    final Table groupDisciplineTable = new Table("GroupDiscipline",
+    final Table groupDisciplineTable = new Table(this.getTableName(),
         this.getColNames(), this.getColTypes(), conn);
     groupDisciplineTable.setNotNullColumns()
         .setForeignKey("GroupName", "UniversityGroups", "Name", true)
@@ -15,6 +15,10 @@ public class GroupDisciplineTableController extends TableController {
         .setPrimaryKeyField("GroupName", "DisciplineName")
         .create();
     this.table = groupDisciplineTable;
+  }
+
+  protected String getTableName() {
+    return "GroupDiscipline";
   }
 
   protected String[] getColNames() {

@@ -1,4 +1,4 @@
-package Controllers;
+package controllers;
 
 import src.Table;
 
@@ -11,6 +11,10 @@ public class DisciplinesTableController extends TableController {
         this.getColTypes(), conn);
     disciplines.setPrimaryKeyField(1).setNotNullColumns().create();
     this.table = disciplines;
+  }
+
+  protected String getTableName() {
+    return "Disciplines";
   }
 
   protected String[] getColNames() {

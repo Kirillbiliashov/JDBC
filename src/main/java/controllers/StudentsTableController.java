@@ -1,4 +1,4 @@
-package Controllers;
+package controllers;
 
 import src.Table;
 
@@ -7,7 +7,7 @@ import java.sql.Connection;
 public class StudentsTableController extends TableController {
 
   public void instantiateTable(final Connection conn) throws Exception {
-    final Table studentsTable = new Table("Students", this.getColNames(),
+    final Table studentsTable = new Table(this.getTableName(), this.getColNames(),
         this.getColTypes(), conn);
     studentsTable.setPrimaryKeyField(1)
         .setAutoIncCol("Id")
@@ -15,6 +15,10 @@ public class StudentsTableController extends TableController {
         .setNotNullColumns()
         .create();
     this.table = studentsTable;
+  }
+
+  protected String getTableName() {
+    return "Students";
   }
 
   protected String[] getColNames() {
