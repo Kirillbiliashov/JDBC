@@ -6,8 +6,8 @@ import java.util.*;
 public class Table {
 
   private final String tableName;
-  private final String[] colNames;
-  private final String[] colTypes;
+  private final ArrayList<String> colNames;
+  private final ArrayList<String> colTypes;
   private final Connection conn;
   private final String LINE_SEPARATOR = ", \n";
   private final List<String> foreignKeyConstraints;
@@ -28,8 +28,8 @@ public class Table {
       throw new Exception(exceptionStr);
     }
     this.tableName = tableName;
-    this.colNames = colNames;
-    this.colTypes = colTypes;
+    this.colNames = new ArrayList<>(Arrays.asList(colNames));
+    this.colTypes = new ArrayList<>(Arrays.asList(colTypes));
     this.colsCount = colNames.length;
     this.foreignKeyConstraints = new ArrayList<>(colNames.length);
     this.notNullColsIndices = new ArrayList<>(colNames.length);
@@ -57,6 +57,53 @@ public class Table {
       System.out.println(sqlStr);
       if (stmt.execute(sqlStr)) {
         System.out.println("table successfully dropped from the database");
+      }
+    }
+  }
+
+  public void addColumn(final String colName, final String dataType)
+      throws SQLException {
+    if (!this.colNames.contains(colName)) {
+      this.colNames.add(colName);
+      this.colTypes.add(dataType);
+      final String alterStr = "ALTER TABLE " + this.tableName + " ADD " +
+          colName + " " + dataType + ";";
+      System.out.println(alterStr);
+      try (final Statement stmt = this.conn.createStatement()) {
+        stmt.execute(alterStr);
+        System.out.println("Successfully added column to table " +
+            this.tableName);
+      }
+    }
+  }
+
+  public void dropColumn(final String colName) throws SQLException {
+    final int idx = this.colNames.indexOf(colName);
+    if (idx != -1) {
+      this.colNames.remove(idx);
+      this.colTypes.remove(idx);
+      final String alterStr = "ALTER TABLE " + this.tableName + " DROP COLUMN " +
+          colName;
+      try (final Statement stmt = this.conn.createStatement()) {
+        stmt.execute(alterStr);
+        System.out.println("Successfully dropped column in table " +
+            this.tableName);
+      }
+    }
+  }
+
+  public void modifyColumn(final String colName, final String newDataType)
+      throws SQLException {
+    final int idx = this.colNames.indexOf(colName);
+    if (idx != -1) {
+      this.colTypes.remove(idx);
+      this.colTypes.add(idx, newDataType);
+      final String alterStr = "ALTER TABLE " + this.tableName +
+          " MODIFY COLUMN " + colName + " " + newDataType;
+      try (final Statement stmt = this.conn.createStatement()) {
+        stmt.execute(alterStr);
+        System.out.println("Successfully modified column in table " +
+            this.tableName);
       }
     }
   }
@@ -126,11 +173,11 @@ public class Table {
   private String createColumnsStr() {
     StringBuilder res = new StringBuilder();
     for (int i = 0; i < this.colsCount; i++) {
-      final String colName = this.colNames[i];
+      final String colName = this.colNames.get(i);
       final String notNullStr = this.getNotNullStr(i + 1);
       final String autoIncStr = this.getAutoIncStr(i + 1);
       final String defaultValueStr = this.getDefaultValueStr(i + 1);
-      res.append(colName).append(" ").append(this.colTypes[i]).append(notNullStr)
+      res.append(colName).append(" ").append(this.colTypes.get(i)).append(notNullStr)
           .append(autoIncStr).append(defaultValueStr).append(LINE_SEPARATOR);
     }
     return res.substring(0, res.length() - LINE_SEPARATOR.length());
@@ -154,7 +201,7 @@ public class Table {
 
   private String getPrimaryKeyStr() {
     if (this.primaryKeyColName == null) {
-      this.primaryKeyColName = this.colNames[this.primaryKeyColIdx - 1];
+      this.primaryKeyColName = this.colNames.get(this.primaryKeyColIdx - 1);
     }
     return LINE_SEPARATOR + "PRIMARY KEY (" + this.primaryKeyColName + ")";
   }
@@ -188,7 +235,7 @@ public class Table {
   public Table setForeignKey(final int colIdx, final String foreignTable,
                              final String foreignColName) {
     if (colIdx <= this.colsCount) {
-      final String constraintStr = "FOREIGN KEY (" + this.colNames[colIdx - 1] +
+      final String constraintStr = "FOREIGN KEY (" + this.colNames.get(colIdx - 1) +
           ") REFERENCES " + foreignTable + "(" + foreignColName + ")";
       this.foreignKeyConstraints.add(constraintStr);
     }
@@ -249,7 +296,7 @@ public class Table {
 
   public Table setUniqueCol(final int colIdx) {
     if (colIdx <= this.colsCount) {
-      this.uniqueColNames.add(this.colNames[colIdx - 1]);
+      this.uniqueColNames.add(this.colNames.get(colIdx - 1));
     }
     return this;
   }
@@ -263,7 +310,7 @@ public class Table {
 
   private int indexOf(final String colStr) {
     for (int i = 0; i < this.colsCount; i++) {
-      if (colStr.equals(this.colNames[i])) return i;
+      if (colStr.equals(this.colNames.get(i))) return i;
     }
     return -1;
   }
