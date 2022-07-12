@@ -4,7 +4,7 @@ import src.Table;
 
 import java.sql.Connection;
 
-public class DisciplinesTableController extends TableController {
+public final class DisciplinesTableController extends TableController {
 
   public void instantiateTable(final Connection conn) throws Exception {
     final Table disciplines = new Table("Disciplines", this.getColNames(),

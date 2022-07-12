@@ -11,7 +11,6 @@ public class Demo {
       new DisciplinesTableController(),
       new StudentsTableController(),
       new GroupDisciplineTableController()
-
   };
 
   public static Connection getConnection() throws SQLException {

@@ -1,5 +1,9 @@
 package src;
 
+import queryBuilders.DeleteQueryBuilder;
+import queryBuilders.SelectQueryBuilder;
+import queryBuilders.UpdateQueryBuilder;
+
 import java.sql.*;
 import java.util.*;
 
@@ -50,6 +54,15 @@ public class Table {
       }
     }
   }
+
+  public UpdateQueryBuilder update() {
+    return new UpdateQueryBuilder(this.tableName, this.colsCount, this.conn);
+  }
+  public DeleteQueryBuilder delete() {
+    return new DeleteQueryBuilder(this.tableName, this.conn);
+  }
+
+
 
   public void drop() throws SQLException {
     try (final Statement stmt = this.conn.createStatement()) {
@@ -124,14 +137,14 @@ public class Table {
   }
 
 
-  public SelectBuilder select() {
+  public SelectQueryBuilder select() {
     final String ALL_COLS_STR = "*";
-    return new SelectBuilder(this.conn, this.tableName,
-        new String[]{ALL_COLS_STR});
+    return new SelectQueryBuilder(this.tableName,
+        new String[]{ALL_COLS_STR}, this.conn);
   }
 
-  public SelectBuilder select(final String... colNames) {
-    return new SelectBuilder(this.conn, this.tableName, colNames);
+  public SelectQueryBuilder select(final String... colNames) {
+    return new SelectQueryBuilder(this.tableName, colNames, this.conn);
   }
 
   private void createNewRow(final Object[] values, final ResultSet rs)

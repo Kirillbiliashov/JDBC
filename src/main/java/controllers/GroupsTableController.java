@@ -4,7 +4,7 @@ import src.Table;
 
 import java.sql.Connection;
 
-public class GroupsTableController extends TableController {
+public final class GroupsTableController extends TableController {
 
   public void instantiateTable(final Connection conn) throws Exception {
     final Table groupsTable = new Table(this.getTableName(), this.getColNames(),
