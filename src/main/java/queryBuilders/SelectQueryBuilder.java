@@ -18,12 +18,11 @@ public final class SelectQueryBuilder extends QueryBuilder<ResultSet> {
   }
 
   protected String getStatement() {
-    final String colNamesSequence = String.join(", ", this.selectColNames);
-    final StringBuilder selectStrBuilder = new StringBuilder(this.getInsertStr());
+    final String colNamesSequence = String.join(DELIMITER, this.selectColNames);
     final String tableName = this.isSelfJoin ? this.tableName + " A, " +
         this.tableName + " B " : this.tableName;
-    return selectStrBuilder.append("SELECT ").append(colNamesSequence)
-        .append(" FROM ").append(tableName).append(constraintsSB).toString();
+    return this.getInsertStr() + "SELECT " + colNamesSequence + " FROM "
+        + tableName + constraintsSB;
   }
 
   protected ResultSet getOperationRes(Statement stmt, String queryStr)
@@ -99,19 +98,16 @@ public final class SelectQueryBuilder extends QueryBuilder<ResultSet> {
   }
 
   public SelectQueryBuilder groupBy(final String groupByCol) {
-    this.constraintsSB.append(" GROUP BY " + groupByCol);
+    this.constraintsSB.append(" GROUP BY ").append(groupByCol);
     return this;
   }
 
   public SelectQueryBuilder orderBy(final String colName,
                                     final boolean isAscending) {
-    final String orderCol = colName + (!isAscending ? " DESC" : "");
-    if (!this.isOrdered) {
-      this.constraintsSB.append(" ORDER BY ").append(orderCol);
-      this.isOrdered = true;
-    } else {
-      this.constraintsSB.append(", ").append(orderCol);
-    }
+    final String orderCol = colName + (isAscending ? "" : " DESC");
+    this.constraintsSB.append(this.isOrdered ? DELIMITER : " ORDER BY ")
+        .append(orderCol);
+    if (!this.isOrdered) this.isOrdered = true;
     return this;
   }
 
@@ -184,7 +180,7 @@ public final class SelectQueryBuilder extends QueryBuilder<ResultSet> {
   private String getInsertStr() {
     if (this.insertTable == null) return "";
     return "INSERT INTO " + this.insertTable + " (" +
-        String.join(", ", this.insertTableColNames) + ") ";
+        String.join(DELIMITER, this.insertTableColNames) + ") ";
   }
 
 }

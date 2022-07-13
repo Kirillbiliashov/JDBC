@@ -29,7 +29,6 @@ public final class UpdateQueryBuilder extends QueryBuilder<Integer> {
   }
 
   private String getSetExpression() {
-    final String DELIMITER = ", ";
     final StringBuilder res = new StringBuilder();
     final Set<Map.Entry<String, String>> entrySet = updColNameValueMap.entrySet();
     for (final Map.Entry<String, String> keyValue : entrySet) {
