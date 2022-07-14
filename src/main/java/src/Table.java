@@ -84,39 +84,8 @@ public class Table {
       }
     }
   }
-
-  public void addColumn(final String colName, final String dataType)
-      throws SQLException {
-    if (!this.colNames.contains(colName)) {
-      this.colNames.add(colName);
-      this.colTypes.add(dataType);
-      final String alterStr = "ALTER TABLE " + this.tableName + " ADD " +
-          colName + " " + dataType;
-      this.executeStatement(alterStr);
-    }
-  }
-
-  public void dropColumn(final String colName) throws SQLException {
-    final int idx = this.colNames.indexOf(colName);
-    if (idx != -1) {
-      this.colNames.remove(idx);
-      this.colTypes.remove(idx);
-      final String alterStr = "ALTER TABLE " + this.tableName +
-          " DROP COLUMN " + colName;
-      this.executeStatement(alterStr);
-    }
-  }
-
-  public void modifyColumn(final String colName, final String newDataType)
-      throws SQLException {
-    final int idx = this.colNames.indexOf(colName);
-    if (idx != -1) {
-      this.colTypes.remove(idx);
-      this.colTypes.add(idx, newDataType);
-      final String alterStr = "ALTER TABLE " + this.tableName +
-          " MODIFY COLUMN " + colName + " " + newDataType;
-      this.executeStatement(alterStr);
-    }
+  public ColumnController column() {
+    return new ColumnController(this.tableName, this.colNames, this.colTypes, this.conn);
   }
 
   public void addCheck(final String colName, final String operator,
