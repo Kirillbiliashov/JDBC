@@ -16,6 +16,7 @@ public class Table {
   private final List<Integer> autoIncColIndices;
   private final Map<Integer, String> defaultValues;
   private final List<String> uniqueColStatements;
+  private final List<String> checkStatements;
   private final int colsCount;
   private String primaryKeyColName;
   private List<Integer> notNullColIndices;
@@ -37,6 +38,7 @@ public class Table {
     this.autoIncColIndices = new ArrayList<>(colNames.length);
     this.defaultValues = new HashMap<>(colNames.length);
     this.uniqueColStatements = new ArrayList<>(colNames.length);
+    this.checkStatements = new ArrayList<>(colNames.length);
     this.conn = conn;
   }
 
@@ -51,15 +53,18 @@ public class Table {
   }
 
   private String getCreateTableStatement() {
-    final boolean foreignKeyExists = !this.foreignKeyConstraints.isEmpty();
-    final boolean uniqueColExists = !this.uniqueColStatements.isEmpty();
-    final String foreignKeyStr = foreignKeyExists ? LINE_SEPARATOR +
-        String.join(LINE_SEPARATOR, this.foreignKeyConstraints) : "";
-    final String uniqueStr = uniqueColExists ? LINE_SEPARATOR +
-        String.join(LINE_SEPARATOR, this.uniqueColStatements) : "";
+    final String checkStr = this.getConstraintStr(this.checkStatements);
+    final String foreignKeyStr = this.getConstraintStr(this.foreignKeyConstraints);
+    final String uniqueStr = this.getConstraintStr(this.uniqueColStatements);
     return "CREATE TABLE IF NOT EXISTS " + this.tableName + " (" +
-        this.createColumnsStr() + uniqueStr + this.getPrimaryKeyStr() +
-        foreignKeyStr + ");";
+        this.createColumnsStr() + checkStr + uniqueStr +
+        this.getPrimaryKeyStr() + foreignKeyStr + ");";
+  }
+
+  private String getConstraintStr(final List<String> constraintsList) {
+    final boolean constraintExists = !constraintsList.isEmpty();
+    return constraintExists ? LINE_SEPARATOR +
+        String.join(LINE_SEPARATOR, constraintsList) : "";
   }
 
   public UpdateQueryBuilder update() {
@@ -112,6 +117,29 @@ public class Table {
           " MODIFY COLUMN " + colName + " " + newDataType;
       this.executeStatement(alterStr);
     }
+  }
+
+  public void addCheck(final String colName, final String operator,
+                       final String value) throws SQLException {
+    if (this.colNames.contains(colName)) {
+      final String alterStr = "ALTER TABLE " + this.tableName +
+          " ADD CHECK (" + colName + operator + value + ")";
+      this.executeStatement(alterStr);
+    }
+  }
+
+  public void createIndex(final String idxName, final boolean isUnique,
+                          final String... colNames) throws SQLException {
+    final String isUniqueStr = isUnique ? "UNIQUE" : "";
+    final String colNamesStr = String.join(", ", colNames);
+    final String createIdxString = "CREATE " + isUniqueStr + " INDEX " +
+        idxName + " ON " + this.tableName + " (" + colNamesStr + ")";
+    this.executeStatement(createIdxString);
+  }
+
+  public void dropIndex(final String idxName) throws SQLException {
+    final String dropIdxString = "ALTER TABLE " + this.tableName + " DROP INDEX " + idxName;
+    this.executeStatement(dropIdxString);
   }
 
   private void executeStatement(final String stmtString)
@@ -303,6 +331,15 @@ public class Table {
     if (this.colNames.contains(colName) &&
         !this.uniqueColStatements.contains(colName)) {
       this.uniqueColStatements.add("UNIQUE (" + colName + ")");
+    }
+    return this;
+  }
+
+  public Table setCheck(final String colName, final String operator,
+                        final String value) {
+    final String checkStr = "CHECK (" + colName + operator + value + ")";
+    if (!this.checkStatements.contains(checkStr)) {
+      this.checkStatements.add(checkStr);
     }
     return this;
   }
