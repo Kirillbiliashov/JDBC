@@ -4,13 +4,12 @@ import queryBuilders.*;
 
 import java.sql.*;
 import java.util.*;
-
+import static src.ConnectionSingleton.*;
 public class Table {
 
   private final String tableName;
   private final ArrayList<String> colNames;
   private final ArrayList<String> colTypes;
-  private final Connection conn;
   private final String LINE_SEPARATOR = ", \n";
   private final List<String> foreignKeyConstraints;
   private final List<Integer> autoIncColIndices;
@@ -22,7 +21,7 @@ public class Table {
   private List<Integer> notNullColIndices;
 
   public Table(final String tableName, final String[] colNames,
-               final String[] colTypes, final Connection conn) throws Exception {
+               final String[] colTypes) throws Exception {
     final int length = colNames.length;
     if (length != colTypes.length) {
       final String exceptionStr = "Number of column names should be equal to" +
@@ -39,11 +38,10 @@ public class Table {
     this.defaultValues = new HashMap<>(colNames.length);
     this.uniqueColStatements = new ArrayList<>(colNames.length);
     this.checkStatements = new ArrayList<>(colNames.length);
-    this.conn = conn;
   }
 
   public void create() throws SQLException {
-    try (final Statement stmt = this.conn.createStatement()) {
+    try (final Statement stmt = getConn().createStatement()) {
       final String sqlStr = this.getCreateTableStatement();
       System.out.println(sqlStr);
       if (stmt.execute(sqlStr)) {
@@ -68,15 +66,15 @@ public class Table {
   }
 
   public UpdateQueryBuilder update() {
-    return new UpdateQueryBuilder(this.tableName, this.colsCount, this.conn);
+    return new UpdateQueryBuilder(this.tableName, this.colsCount);
   }
 
   public DeleteQueryBuilder delete() {
-    return new DeleteQueryBuilder(this.tableName, this.conn);
+    return new DeleteQueryBuilder(this.tableName);
   }
 
   public void drop() throws SQLException {
-    try (final Statement stmt = this.conn.createStatement()) {
+    try (final Statement stmt = getConn().createStatement()) {
       final String sqlStr = "DROP TABLE IF EXISTS " + this.tableName;
       System.out.println(sqlStr);
       if (stmt.execute(sqlStr)) {
@@ -85,7 +83,7 @@ public class Table {
     }
   }
   public ColumnController column() {
-    return new ColumnController(this.tableName, this.colNames, this.colTypes, this.conn);
+    return new ColumnController(this.tableName, this.colNames, this.colTypes);
   }
 
   public void addCheck(final String colName, final String operator,
@@ -113,7 +111,7 @@ public class Table {
 
   private void executeStatement(final String stmtString)
       throws SQLException {
-    try (final Statement stmt = this.conn.createStatement()) {
+    try (final Statement stmt = getConn().createStatement()) {
       stmt.execute(stmtString);
       System.out.println("Successfully altered table " +
           this.tableName);
@@ -129,8 +127,8 @@ public class Table {
   }
 
   public void insert(final String[] values) throws SQLException {
-    try (final Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
-        ResultSet.CONCUR_UPDATABLE)) {
+    try (final Statement stmt = getConn().createStatement(
+        ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
       final ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName);
       rs.moveToInsertRow();
       this.createNewRow(values, rs);
@@ -141,11 +139,11 @@ public class Table {
   public SelectQueryBuilder select() {
     final String ALL_COLS_SYMBOL = "*";
     return new SelectQueryBuilder(this.tableName,
-        new String[]{ALL_COLS_SYMBOL}, this.conn);
+        new String[]{ALL_COLS_SYMBOL});
   }
 
   public SelectQueryBuilder select(final String... colNames) {
-    return new SelectQueryBuilder(this.tableName, colNames, this.conn);
+    return new SelectQueryBuilder(this.tableName, colNames);
   }
 
   private void createNewRow(final String[] values, final ResultSet rs)

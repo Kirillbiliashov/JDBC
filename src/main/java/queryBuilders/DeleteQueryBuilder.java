@@ -3,8 +3,8 @@ package queryBuilders;
 import java.sql.*;
 
 public final class DeleteQueryBuilder extends QueryBuilder<Integer> {
-  public DeleteQueryBuilder(final String tableName, final Connection conn) {
-    super(tableName, conn);
+  public DeleteQueryBuilder(final String tableName) {
+    super(tableName);
   }
 
   protected String getStatement() {

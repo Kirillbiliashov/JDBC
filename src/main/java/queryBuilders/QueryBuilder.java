@@ -2,16 +2,14 @@ package queryBuilders;
 
 import java.sql.*;
 import java.util.function.Consumer;
-
+import static src.ConnectionSingleton.*;
 public abstract class QueryBuilder<T> {
   protected final StringBuilder constraintsSB = new StringBuilder();
   protected final String tableName;
-  protected final Connection conn;
   protected final String DELIMITER = ", ";
 
-  public QueryBuilder(final String tableName, final Connection conn) {
+  public QueryBuilder(final String tableName) {
     this.tableName = tableName;
-    this.conn = conn;
   }
 
   protected abstract String getStatement();
@@ -60,7 +58,7 @@ public abstract class QueryBuilder<T> {
   }
 
   public void execute(final Consumer<T> fn) {
-    try (final Statement stmt = this.conn.createStatement()) {
+    try (final Statement stmt = getConn().createStatement()) {
       final String queryStr = this.getStatement();
       System.out.println(queryStr);
       final T res = this.getOperationRes(stmt, queryStr);

@@ -1,22 +1,18 @@
 package src;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
-
+import static src.ConnectionSingleton.*;
 public class ColumnController {
   private final String tableName;
   private final List<String> colNames;
   private final List<String> colTypes;
-  private final Connection conn;
 
   public ColumnController(final String tableName, final List<String> colNames,
-                          final List<String> colTypes, final Connection conn) {
+                          final List<String> colTypes) {
     this.tableName = tableName;
     this.colNames = colNames;
     this.colTypes = colTypes;
-    this.conn = conn;
 
   }
 
@@ -57,7 +53,7 @@ public class ColumnController {
 
   private void executeStatement(final String stmtString)
       throws SQLException {
-    try (final Statement stmt = this.conn.createStatement()) {
+    try (final Statement stmt = getConn().createStatement()) {
       stmt.execute(stmtString);
       System.out.println("Successfully altered table " +
           this.tableName);

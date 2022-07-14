@@ -7,9 +7,8 @@ public final class UpdateQueryBuilder extends QueryBuilder<Integer> {
 
   private final Map<String, String> updColNameValueMap;
 
-  public UpdateQueryBuilder(final String tableName, final int colsCount,
-                            final Connection conn) {
-    super(tableName, conn);
+  public UpdateQueryBuilder(final String tableName, final int colsCount) {
+    super(tableName);
     this.updColNameValueMap = new HashMap<>(colsCount);
   }
 
