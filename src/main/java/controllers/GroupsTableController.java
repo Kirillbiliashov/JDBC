@@ -6,11 +6,12 @@ import java.sql.Connection;
 
 public final class GroupsTableController extends TableController {
 
-  public void instantiateTable(final Connection conn) throws Exception {
+  public GroupsTableController instantiateTable() throws Exception {
     final Table groupsTable = new Table(this.getTableName(), this.getColNames(),
-        this.getColTypes(), conn);
-    groupsTable.setPrimaryKeyField(1).setNotNullColumns().create();
+        this.getColTypes());
+    groupsTable.column("Name").primaryKey().setNotNullColumns().create();
     this.table = groupsTable;
+    return this;
   }
 
   protected String getTableName() {

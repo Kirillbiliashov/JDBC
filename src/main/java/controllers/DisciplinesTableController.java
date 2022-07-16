@@ -6,11 +6,13 @@ import java.sql.Connection;
 
 public final class DisciplinesTableController extends TableController {
 
-  public void instantiateTable(final Connection conn) throws Exception {
-    final Table disciplines = new Table("Disciplines", this.getColNames(),
-        this.getColTypes(), conn);
-    disciplines.setPrimaryKeyField(1).setNotNullColumns().create();
+  public DisciplinesTableController instantiateTable()
+      throws Exception {
+    final Table disciplines = new Table(this.getTableName(), this.getColNames(),
+        this.getColTypes());
+    disciplines.column("Name").primaryKey().setNotNullColumns().create();
     this.table = disciplines;
+    return this;
   }
 
   protected String getTableName() {

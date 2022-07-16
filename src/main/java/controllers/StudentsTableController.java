@@ -6,15 +6,14 @@ import java.sql.Connection;
 
 public final class StudentsTableController extends TableController {
 
-  public void instantiateTable(final Connection conn) throws Exception {
+  public StudentsTableController instantiateTable() throws Exception {
     final Table studentsTable = new Table(this.getTableName(),
-        this.getColNames(), this.getColTypes(), conn);
-    studentsTable.setPrimaryKeyField(1)
-        .setAutoIncCol("Id")
-        .setForeignKey("UniversityGroup", "UniversityGroups", "Name", true)
-        .setNotNullColumns()
-        .create();
+        this.getColNames(), this.getColTypes());
+    studentsTable.column("Id").primaryKey().autoIncrement()
+        .column("UniversityGroup").reference("UniversityGroups", "Name", true)
+        .setNotNullColumns().create();
     this.table = studentsTable;
+    return this;
   }
 
   protected String getTableName() {

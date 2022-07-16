@@ -1,9 +1,7 @@
 package src;
 
 import controllers.*;
-
-import java.sql.*;
-
+import static src.ConnectionSingleton.*;
 public class Demo {
 
   private final static TableController[] controllers = {
@@ -13,19 +11,14 @@ public class Demo {
       new GroupDisciplineTableController()
   };
 
-  public static Connection getConnection() throws SQLException {
-    return DriverManager.getConnection(ConnectionProperties.URL,
-        ConnectionProperties.USERNAME, ConnectionProperties.PASSWORD);
-  }
-
   public static void main(String[] args) {
-    try (final Connection conn = Demo.getConnection()) {
-      conn.setAutoCommit(false);
+    try {
+      getConn().setAutoCommit(false);
       for (final TableController controller : controllers) {
-        controller.instantiateTable(conn);
+        controller.instantiateTable();
         controller.populateTable();
       }
-      conn.commit();
+      getConn().commit();
     } catch (Exception e) {
       e.printStackTrace();
     }

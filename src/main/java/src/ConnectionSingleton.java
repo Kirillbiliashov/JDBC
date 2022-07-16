@@ -21,4 +21,5 @@ public final class ConnectionSingleton {
   public static void closeConn() throws SQLException {
     if (!conn.isClosed()) conn.close();
   }
+
 }

@@ -28,13 +28,13 @@ public class SQLTableLogger {
     final String borderStr = this.getTableBorder(tableHeader.length());
     System.out.println(borderStr);
     System.out.println(tableHeader);
-    while (rs.next()) this.printRowData(rs, colNames, colMaxSizes);
+    while (this.rs.next()) this.printRowData(this.rs, colNames, colMaxSizes);
     System.out.println(borderStr);
   }
 
   private List<String> getColNames() throws SQLException {
     final List<String> colNames = new ArrayList<>(this.cols);
-    for (int i = 0; i < cols; i++) {
+    for (int i = 0; i < this.cols; i++) {
       colNames.add(this.metadata.getColumnName(i + 1));
     }
     return colNames;
@@ -50,14 +50,14 @@ public class SQLTableLogger {
 
   private String getTableHeader(final List<String> colNames,
                                 final List<Integer> colMaxSizes) {
-    final StringBuilder tableHeader = new StringBuilder();
+    final StringBuilder tableHeaderBuilder = new StringBuilder();
     for (final String colName : colNames) {
       final int idx = colNames.indexOf(colName);
       final int colMaxSize = colMaxSizes.get(idx);
-      tableHeader.append(this.getPaddedString(colMaxSize, colName))
+      tableHeaderBuilder.append(this.getPaddedString(colMaxSize, colName))
           .append(COL_DELIMITER);
     }
-    return tableHeader.toString();
+    return tableHeaderBuilder.toString();
   }
 
   private String getPaddedString(final int newStrLength, final String str) {
@@ -72,7 +72,7 @@ public class SQLTableLogger {
   private void printRowData(final ResultSet rs, final List<String> colNames,
                             final List<Integer> colMaxSizes) throws SQLException {
     StringBuilder rowStr = new StringBuilder();
-    for (int i = 0; i < colNames.size(); i++) {
+    for (int i = 0; i < this.cols; i++) {
       final int colMaxSize = colMaxSizes.get(i);
       final int newStrLength = Math.max(colMaxSize, colNames.get(i).length());
       final String paddedStr = getPaddedString(newStrLength,

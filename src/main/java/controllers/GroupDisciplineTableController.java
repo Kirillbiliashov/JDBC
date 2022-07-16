@@ -2,19 +2,20 @@ package controllers;
 
 import src.Table;
 
-import java.sql.Connection;
-
 public final class GroupDisciplineTableController extends TableController {
 
-  public void instantiateTable(final Connection conn) throws Exception {
+  public GroupDisciplineTableController instantiateTable()
+      throws Exception {
     final Table groupDisciplineTable = new Table(this.getTableName(),
-        this.getColNames(), this.getColTypes(), conn);
+        this.getColNames(), this.getColTypes());
     groupDisciplineTable.setNotNullColumns()
-        .setForeignKey("GroupName", "UniversityGroups", "Name", true)
-        .setForeignKey("DisciplineName", "Disciplines", "Name", true)
-        .setPrimaryKeyField("GroupName", "DisciplineName")
+        .column("GroupName")
+        .reference("UniversityGroups", "Name", true).primaryKey()
+        .column("DisciplineName")
+        .reference("Disciplines", "Name", true).primaryKey()
         .create();
     this.table = groupDisciplineTable;
+    return this;
   }
 
   protected String getTableName() {

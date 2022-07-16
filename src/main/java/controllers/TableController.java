@@ -8,8 +8,7 @@ import java.sql.*;
 public abstract class TableController {
 
   protected Table table;
-
-  public abstract void instantiateTable(final Connection conn) throws Exception;
+  public abstract TableController instantiateTable() throws Exception;
 
   protected abstract String getTableName();
 

@@ -10,10 +10,8 @@ public final class SelectQueryBuilder extends QueryBuilder<ResultSet> {
   private String insertTable;
   private String[] insertTableColNames;
 
-  public SelectQueryBuilder(final String tableName,
-                            final String[] selectColNames,
-                            final Connection conn) {
-    super(tableName, conn);
+  public SelectQueryBuilder(final String tableName, final String[] selectColNames) {
+    super(tableName);
     this.selectColNames = selectColNames;
   }
 
@@ -21,8 +19,8 @@ public final class SelectQueryBuilder extends QueryBuilder<ResultSet> {
     final String colNamesSequence = String.join(DELIMITER, this.selectColNames);
     final String tableName = this.isSelfJoin ? this.tableName + " A, " +
         this.tableName + " B " : this.tableName;
-    return this.getInsertStr() + "SELECT " + colNamesSequence + " FROM "
-        + tableName + constraintsSB;
+    return this.getInsertStr() + "SELECT " + colNamesSequence + " FROM " +
+        tableName + constraintsSB;
   }
 
   protected ResultSet getOperationRes(Statement stmt, String queryStr)
