@@ -4,8 +4,7 @@ import src.Table;
 
 public final class DisciplinesTableController extends TableController {
 
-  public DisciplinesTableController instantiateTable()
-      throws Exception {
+  public DisciplinesTableController instantiateTable() throws Exception {
     final Table disciplines = new Table(this.getTableName(), this.getColNames(),
         this.getColTypes());
     disciplines.column("Name").primaryKey().setNotNullColumns().create();

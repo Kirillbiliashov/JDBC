@@ -18,11 +18,12 @@ public abstract class TableController {
 
   protected abstract String[][] getData();
 
-  public void populateTable() throws SQLException {
+  public TableController populateTable() throws SQLException {
     final String[][] data = this.getData();
     for (final String[] row : data) {
       this.table.insert(row);
     }
+    return this;
   }
 
   public Table getTable() throws Exception {

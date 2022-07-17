@@ -17,7 +17,7 @@ public final class SelectQueryBuilder extends QueryBuilder<ResultSet> {
     this.selectColNames = selectColNames;
   }
 
-  protected String getStatement() {
+  protected String getSqlString() {
     final String colNamesSequence = String.join(DELIMITER, this.selectColNames);
     final String tableName = this.isSelfJoin ? this.tableName + " A, " +
         this.tableName + " B " : this.tableName;
@@ -63,7 +63,7 @@ public final class SelectQueryBuilder extends QueryBuilder<ResultSet> {
   }
 
   public SelectQueryBuilder whereExists(final SelectQueryBuilder selectBuilder) {
-    final String selectStmt = selectBuilder.getStatement();
+    final String selectStmt = selectBuilder.getSqlString();
     this.constraintsSB.append(" WHERE EXISTS (").append(selectStmt).append(")");
     return this;
   }
@@ -71,7 +71,7 @@ public final class SelectQueryBuilder extends QueryBuilder<ResultSet> {
   public SelectQueryBuilder whereAny(final String colName,
                                      final String operator,
                                      final SelectQueryBuilder selectBuilder) {
-    final String selectStmt = selectBuilder.getStatement();
+    final String selectStmt = selectBuilder.getSqlString();
     this.constraintsSB.append(" WHERE ").append(colName).append(operator)
         .append("ANY (").append(selectStmt).append(")");
     return this;
@@ -80,7 +80,7 @@ public final class SelectQueryBuilder extends QueryBuilder<ResultSet> {
   public SelectQueryBuilder whereAll(final String colName,
                                      final String operator,
                                      final SelectQueryBuilder selectBuilder) {
-    final String selectStmt = selectBuilder.getStatement();
+    final String selectStmt = selectBuilder.getSqlString();
     this.constraintsSB.append(" WHERE ").append(colName).append(operator)
         .append("ALL (").append(selectStmt).append(")");
     return this;

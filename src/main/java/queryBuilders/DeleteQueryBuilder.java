@@ -9,7 +9,7 @@ public final class DeleteQueryBuilder extends QueryBuilder<Integer> {
     super(tableName);
   }
 
-  protected String getStatement() {
+  protected String getSqlString() {
     return "DELETE FROM " + this.tableName + this.constraintsSB;
   }
 

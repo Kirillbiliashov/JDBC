@@ -14,7 +14,7 @@ public final class UpdateQueryBuilder extends QueryBuilder<Integer> {
     this.updatesMap = new HashMap<>(colsCount);
   }
 
-  protected String getStatement() {
+  protected String getSqlString() {
     return "UPDATE " + this.tableName + " SET " + this.getSetExpression() +
         this.constraintsSB;
   }

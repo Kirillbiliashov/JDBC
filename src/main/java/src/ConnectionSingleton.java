@@ -16,8 +16,12 @@ public final class ConnectionSingleton {
     return conn;
   }
 
-  public static void closeConn() throws SQLException {
-    if (!conn.isClosed()) conn.close();
+  public static void closeConn() {
+    try {
+      if (!conn.isClosed()) conn.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
   }
 
 }

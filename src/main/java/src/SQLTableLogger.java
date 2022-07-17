@@ -3,7 +3,7 @@ package src;
 import java.sql.*;
 import java.util.*;
 
-public class SQLTableLogger {
+public final class SQLTableLogger {
 
   private final ResultSet rs;
   private final ResultSetMetaData metadata;

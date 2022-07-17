@@ -13,7 +13,7 @@ public abstract class QueryBuilder<T> {
     this.tableName = tableName;
   }
 
-  protected abstract String getStatement();
+  protected abstract String getSqlString();
 
   protected abstract T getOperationRes(final String queryStr) throws SQLException;
 
@@ -59,7 +59,7 @@ public abstract class QueryBuilder<T> {
   }
 
   public void execute(final Consumer<T> fn) throws SQLException {
-      final String queryStr = this.getStatement();
+      final String queryStr = this.getSqlString();
       System.out.println(queryStr);
       final T res = this.getOperationRes(queryStr);
       fn.accept(res);

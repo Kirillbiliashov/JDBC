@@ -1,64 +1,70 @@
 package src;
 
-public class Column {
+import java.util.ArrayList;
+import java.util.List;
+
+public final class Column {
 
   private final String name;
-  private  String type;
   private final String LINE_SEPARATOR = ", \n";
+  private String type;
   private boolean isNotNull;
   private boolean isUnique;
   private boolean isAutoIncrement;
   private boolean isPrimaryKey;
   private String defaultValue;
   private String referenceCol;
-  private String checkStr;
+  private List<String> checkStrList;
   private boolean isCascadeDelete;
 
   public Column(final String name, final String type) {
     this.name = name;
     this.type = type;
+    this.checkStrList = new ArrayList<>();
   }
 
   public String toString() {
     return this.name + " " + this.type + this.getNotNullStr() +
         this.getAutoIncStr() + this.getDefaultValueStr() +
         this.getUniqueStr() + this.getPrimaryKeyStr() +
-        this.getForeignKeyStr() + this.getCheckStr();
+        this.getForeignKeyStr() + this.getColumnChecks();
   }
 
-  protected void setDataType(final String dataType) {
+  public void setDataType(final String dataType) {
     this.type = dataType;
   }
 
-  protected void setNotNull() {
+  void setNotNull() {
     this.isNotNull = true;
   }
 
-  protected void setUnique() {
+  void setUnique() {
     this.isUnique = true;
   }
 
-  protected void setAutoIncrement() {
+  void setAutoIncrement() {
     this.isAutoIncrement = true;
   }
 
-  protected void setDefaultValue(final String defaultValue) {
+  void setDefaultValue(final String defaultValue) {
     this.defaultValue = defaultValue;
   }
 
-  protected void setPrimaryKey() {
+  void setPrimaryKey() {
     this.isPrimaryKey = true;
   }
 
-  protected void setReferenceCol(final String tableName,
-                                 final String foreignField,
-                                 final boolean isCascadeDelete) {
+  void setReferenceCol(final String tableName, final String foreignField,
+                       final boolean isCascadeDelete) {
     this.referenceCol = tableName + "(" + foreignField + ")";
     this.isCascadeDelete = isCascadeDelete;
   }
 
-  protected void setCheck(final String operator, final String value) {
-    this.checkStr = operator + value;
+  void setCheck(final String operator, final String value) {
+    final String checkStr = operator + value;
+    if (!this.checkStrList.contains(checkStr)) {
+      this.checkStrList.add(checkStr);
+    }
   }
 
   public boolean isAutoIncrement() {
@@ -96,9 +102,9 @@ public class Column {
         this.name + " REFERENCES " + this.referenceCol + cascadeDeleteStr;
   }
 
-  private String getCheckStr() {
-    return this.checkStr == null ? "" : LINE_SEPARATOR + "CHECK (" +
-        this.name + this.checkStr + ")";
+  private String getColumnChecks() {
+    return String.join(", ", this.checkStrList.stream()
+        .map(str -> "CHECK (" + this.name + str + ")").toList());
   }
 
 }

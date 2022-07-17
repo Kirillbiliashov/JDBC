@@ -1,5 +1,6 @@
 package src;
 
+import controllers.ColumnsController;
 import queryBuilders.*;
 
 import java.sql.*;
@@ -7,10 +8,9 @@ import java.util.*;
 
 import static src.StatementExecutor.*;
 
-public class Table {
+public final class Table {
 
   private final String tableName;
-  private final String LINE_SEPARATOR = ", \n";
   private final int colsCount;
   private final List<Column> columnsList;
   private Column currColumn;
@@ -107,7 +107,7 @@ public class Table {
   private String getColumnsStr() {
     final List<String> colStrList = this.columnsList.stream().
         map(Object::toString).toList();
-    return String.join(LINE_SEPARATOR, colStrList);
+    return String.join(", \n", colStrList);
   }
 
   public Table setNotNullColumns() {

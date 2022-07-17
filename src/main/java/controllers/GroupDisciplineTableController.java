@@ -4,8 +4,7 @@ import src.Table;
 
 public final class GroupDisciplineTableController extends TableController {
 
-  public GroupDisciplineTableController instantiateTable()
-      throws Exception {
+  public GroupDisciplineTableController instantiateTable() throws Exception {
     final Table groupDisciplineTable = new Table(this.getTableName(),
         this.getColNames(), this.getColTypes());
     groupDisciplineTable.setNotNullColumns()

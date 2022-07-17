@@ -1,16 +1,19 @@
-package src;
+package controllers;
+
+import src.Column;
 
 import java.sql.*;
 import java.util.List;
 
 import static src.StatementExecutor.*;
 
-public class ColumnsController {
+public final class ColumnsController {
 
   private final String tableName;
   private final List<Column> columnsList;
 
-  public ColumnsController(final String tableName, final List<Column> columnsList) {
+  public ColumnsController(final String tableName,
+                           final List<Column> columnsList) {
     this.tableName = tableName;
     this.columnsList = columnsList;
   }
