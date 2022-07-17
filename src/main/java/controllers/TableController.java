@@ -25,7 +25,10 @@ public abstract class TableController {
     }
   }
 
-  public Table getTable() {
+  public Table getTable() throws Exception {
+    if (this.table == null) {
+      this.instantiateTable();
+    }
     return this.table;
   }
 

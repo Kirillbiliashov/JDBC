@@ -2,8 +2,6 @@ package controllers;
 
 import src.Table;
 
-import java.sql.Connection;
-
 public final class GroupsTableController extends TableController {
 
   public GroupsTableController instantiateTable() throws Exception {

@@ -2,8 +2,6 @@ package controllers;
 
 import src.Table;
 
-import java.sql.Connection;
-
 public final class DisciplinesTableController extends TableController {
 
   public DisciplinesTableController instantiateTable()

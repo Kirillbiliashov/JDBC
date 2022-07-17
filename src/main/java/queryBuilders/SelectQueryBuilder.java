@@ -116,32 +116,32 @@ public final class SelectQueryBuilder extends QueryBuilder<ResultSet> {
 
   public SelectQueryBuilder join(final String joinTable,
                                  final String relatedCol,
-                                 final String joinTableRelatedCol) {
-    final String joinExpression = this.buildJoinExpression(relatedCol,
-        joinTableRelatedCol, joinTable);
-    this.constraintsSB.append(" JOIN ").append(joinTable).append(" ON ")
-        .append(joinExpression);
+                                 final String joinTableCol) {
+    this.addJoinConstraint(" INNER ", joinTable, relatedCol, joinTableCol);
     return this;
   }
 
   public SelectQueryBuilder rightJoin(final String joinTable,
                                       final String relatedCol,
-                                      final String joinTableRelatedCol) {
-    final String joinExpression = this.buildJoinExpression(relatedCol,
-        joinTableRelatedCol, joinTable);
-    this.constraintsSB.append(" RIGHT JOIN ").append(joinTable).append(" ON ")
-        .append(joinExpression);
+                                      final String joinTableCol) {
+    this.addJoinConstraint(" RIGHT ", joinTable, relatedCol, joinTableCol);
     return this;
   }
 
   public SelectQueryBuilder leftJoin(final String joinTable,
                                      final String relatedCol,
-                                     final String joinTableRelatedCol) {
-    final String joinExpression = this.buildJoinExpression(relatedCol,
-        joinTableRelatedCol, joinTable);
-    this.constraintsSB.append(" LEFT JOIN ").append(joinTable).append(" ON ")
-        .append(joinExpression);
+                                     final String joinTableCol) {
+    this.addJoinConstraint(" LEFT ", joinTable, relatedCol, joinTableCol);
     return this;
+  }
+
+  private void addJoinConstraint(final String joinType, final String joinTable,
+                                 final String relatedCol,
+                                 final String joinTableCol) {
+    final String joinExpression = this.buildJoinExpression(relatedCol,
+        joinTableCol, joinTable);
+    this.constraintsSB.append(joinType).append("JOIN ").append(joinTable)
+        .append(" ON ").append(joinExpression);
   }
 
   public SelectQueryBuilder crossJoin(final String joinTable) {

@@ -1,6 +1,10 @@
 package src;
 
 import controllers.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static src.ConnectionSingleton.*;
 public class Demo {
 

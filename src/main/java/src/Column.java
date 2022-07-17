@@ -1,6 +1,7 @@
 package src;
 
 public class Column {
+
   private final String name;
   private  String type;
   private final String LINE_SEPARATOR = ", \n";
@@ -45,7 +46,6 @@ public class Column {
 
   protected void setDefaultValue(final String defaultValue) {
     this.defaultValue = defaultValue;
-
   }
 
   protected void setPrimaryKey() {

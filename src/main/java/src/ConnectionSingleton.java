@@ -1,8 +1,6 @@
 package src;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 public final class ConnectionSingleton {
 
@@ -12,9 +10,9 @@ public final class ConnectionSingleton {
   private static Connection conn;
 
   public static Connection getConn() throws SQLException {
-    if (conn != null) return conn;
-
-    conn = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+    if (conn == null) {
+      conn = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+    }
     return conn;
   }
 

@@ -2,14 +2,15 @@ package queryBuilders;
 
 import java.sql.*;
 import java.util.*;
+import java.util.function.Function;
 
 public final class UpdateQueryBuilder extends QueryBuilder<Integer> {
 
-  private final Map<String, String> updColNameValueMap;
+  private final Map<String, String> updatesMap;
 
   public UpdateQueryBuilder(final String tableName, final int colsCount) {
     super(tableName);
-    this.updColNameValueMap = new HashMap<>(colsCount);
+    this.updatesMap = new HashMap<>(colsCount);
   }
 
   protected String getStatement() {
@@ -23,18 +24,14 @@ public final class UpdateQueryBuilder extends QueryBuilder<Integer> {
   }
 
   public UpdateQueryBuilder set(final String colName, final String colValue) {
-    this.updColNameValueMap.put(colName, colValue);
+    this.updatesMap.put(colName, colValue);
     return this;
   }
 
   private String getSetExpression() {
-    final StringBuilder res = new StringBuilder();
-    final Set<Map.Entry<String, String>> entrySet = updColNameValueMap.entrySet();
-    for (final Map.Entry<String, String> keyValue : entrySet) {
-      res.append(keyValue.getKey()).append(" = ").append(keyValue.getValue())
-          .append(DELIMITER);
-    }
-    return res.subSequence(0, res.length() - DELIMITER.length()).toString();
+    final List<String> parsedUpdateList = updatesMap.entrySet().stream().
+        map(e -> e.getKey() + " = " + e.getValue()).toList();
+    return String.join(DELIMITER, parsedUpdateList);
   }
 
 }

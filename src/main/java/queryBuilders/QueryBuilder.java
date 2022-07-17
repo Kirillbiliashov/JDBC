@@ -2,8 +2,11 @@ package queryBuilders;
 
 import java.sql.*;
 import java.util.function.Consumer;
+
 import static src.ConnectionSingleton.*;
+
 public abstract class QueryBuilder<T> {
+
   protected final StringBuilder constraintsSB = new StringBuilder();
   protected final String tableName;
   protected final String DELIMITER = ", ";
@@ -18,9 +21,8 @@ public abstract class QueryBuilder<T> {
                                        final String queryStr) throws SQLException;
 
   public QueryBuilder<T> where(final String colName, final String operator,
-                            final String value) {
-    final String expression = this.buildExpression(colName, operator, value);
-    this.constraintsSB.append(" WHERE ").append(expression);
+                               final String value) {
+    this.buildConstraint(" WHERE ", colName, operator, value);
     return this;
   }
 
@@ -30,31 +32,33 @@ public abstract class QueryBuilder<T> {
   }
 
   public QueryBuilder<T> whereNot(final String colName, final String operator,
-                               final String value) {
-    final String expression = this.buildExpression(colName, operator, value);
-    this.constraintsSB.append(" WHERE NOT ").append(expression);
+                                  final String value) {
+    this.buildConstraint(" WHERE NOT ", colName, operator, value);
     return this;
   }
 
   public QueryBuilder<T> and(final String colName, final String operator,
-                          final String value) {
-    final String expression = this.buildExpression(colName, operator, value);
-    this.constraintsSB.append(" AND ").append(expression);
+                             final String value) {
+    this.buildConstraint(" AND ", colName, operator, value);
     return this;
   }
 
   public QueryBuilder<T> andNot(final String colName, final String operator,
-                             final String value) {
-    final String expression = this.buildExpression(colName, operator, value);
-    this.constraintsSB.append(" AND NOT ").append(expression);
+                                final String value) {
+    this.buildConstraint(" AND NOT ", colName, operator, value);
     return this;
   }
 
   public QueryBuilder<T> or(final String colName, final String operator,
-                         final String value) {
-    final String expression = this.buildExpression(colName, operator, value);
-    this.constraintsSB.append(" OR ").append(expression);
+                            final String value) {
+    this.buildConstraint(" OR ", colName, operator, value);
     return this;
+  }
+
+  private void buildConstraint(final String keyword, final String colName,
+                               final String operator, final String value) {
+    final String expression = this.buildExpression(colName, operator, value);
+    this.constraintsSB.append(keyword).append(expression);
   }
 
   public void execute(final Consumer<T> fn) {
