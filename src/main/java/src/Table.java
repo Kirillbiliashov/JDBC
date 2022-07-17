@@ -6,6 +6,7 @@ import java.sql.*;
 import java.util.*;
 
 import static src.ConnectionSingleton.*;
+import static src.Helpers.*;
 
 public class Table {
 
@@ -24,28 +25,23 @@ public class Table {
       throw new Exception(exceptionStr);
     }
     this.tableName = tableName;
-    this.colsCount = colNames.length;
-    this.columnsList = this.populateColsList(colNames, colTypes);
+    this.colsCount = length;
+    this.columnsList = new ArrayList<>(length);
+    this.populateColsList(colNames, colTypes);
   }
 
-  private List<Column> populateColsList(final String[] colNames,
-                                        final String[] colTypes) {
-    final List<Column> columnsList = new ArrayList<>(this.colsCount);
+  private void populateColsList(final String[] colNames,
+                                final String[] colTypes) {
     for (int i = 0; i < this.colsCount; i++) {
-      columnsList.add(new Column(colNames[i], colTypes[i]));
+      this.columnsList.add(new Column(colNames[i], colTypes[i]));
     }
-    return columnsList;
   }
 
   public void create() throws SQLException {
-    try (final Statement stmt = getConn().createStatement()) {
-      final String sqlStr = "CREATE TABLE IF NOT EXISTS " + this.tableName +
-          " (" + this.getColumnsStr() + ")";
-      System.out.println(sqlStr);
-      if (stmt.execute(sqlStr)) {
-        System.out.println("table successfully added to the database");
-      }
-    }
+    final String sqlStr = "CREATE TABLE IF NOT EXISTS " + this.tableName +
+        " (" + this.getColumnsStr() + ")";
+    final String successMessage = "table successfully added to the database";
+    executeStatement(sqlStr, successMessage);
   }
 
   public UpdateQueryBuilder update() {
@@ -57,13 +53,9 @@ public class Table {
   }
 
   public void drop() throws SQLException {
-    try (final Statement stmt = getConn().createStatement()) {
-      final String sqlStr = "DROP TABLE IF EXISTS " + this.tableName;
-      System.out.println(sqlStr);
-      if (stmt.execute(sqlStr)) {
-        System.out.println("table successfully dropped from the database");
-      }
-    }
+    final String sqlStr = "DROP TABLE IF EXISTS " + this.tableName;
+    final String successMessage = "table successfully dropped from the database";
+    executeStatement(sqlStr, successMessage);
   }
 
   public ColumnsController columns() {

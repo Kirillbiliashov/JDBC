@@ -3,7 +3,7 @@ package src;
 import java.sql.*;
 import java.util.List;
 
-import static src.ConnectionSingleton.*;
+import static src.Helpers.*;
 
 public class ColumnsController {
 
@@ -22,43 +22,47 @@ public class ColumnsController {
     this.columnsList.add(newCol);
     final String addColumnStr = "ALTER TABLE " + this.tableName + " ADD " +
         colName + " " + dataType;
-    this.executeStatement(addColumnStr);
+    final String successMessage = "added column " + colName + " to " +
+        this.tableName + " table";
+    executeStatement(addColumnStr, successMessage);
   }
 
   public void drop(final String colName) throws SQLException {
     for (final Column column : this.columnsList) {
-      if (column.getName().equals(colName)) {
-        this.columnsList.remove(column);
-        final String dropColumnStr = "ALTER TABLE " + this.tableName +
-            " DROP COLUMN " + colName;
-        this.executeStatement(dropColumnStr);
-        return;
-      }
+      if (!column.getName().equals(colName)) continue;
+      this.columnsList.remove(column);
+      final String dropColumnStr = "ALTER TABLE " + this.tableName +
+          " DROP COLUMN " + colName;
+      final String successMessage = "drop column " + colName + " from " +
+          this.tableName + " table";
+      executeStatement(dropColumnStr, successMessage);
+      break;
     }
   }
 
   public void modify(final String colName, final String newDataType)
       throws SQLException {
     for (final Column column : this.columnsList) {
-      if (column.getName().equals(colName)) {
-        column.setDataType(newDataType);
-        final String alterStr = "ALTER TABLE " + this.tableName +
-            " MODIFY COLUMN " + colName + " " + newDataType;
-        this.executeStatement(alterStr);
-        return;
-      }
+      if (!column.getName().equals(colName)) continue;
+      column.setDataType(newDataType);
+      final String alterStr = "ALTER TABLE " + this.tableName +
+          " MODIFY COLUMN " + colName + " " + newDataType;
+      final String successMessage = "modified column " + colName +
+          " for table " + this.tableName;
+      executeStatement(alterStr, successMessage);
+      break;
     }
   }
 
   public void addCheck(final String colName, final String operator,
                        final String value) throws SQLException {
     for (final Column column : this.columnsList) {
-      if (column.getName().equals(colName)) {
-        final String addCheckStr = "ALTER TABLE " + this.tableName +
-            " ADD CHECK (" + colName + operator + value + ")";
-        this.executeStatement(addCheckStr);
-        break;
-      }
+      if (!column.getName().equals(colName)) continue;
+      final String addCheckStr = "ALTER TABLE " + this.tableName +
+          " ADD CHECK (" + colName + operator + value + ")";
+      final String successMessage = "added check to table " + this.tableName;
+      executeStatement(addCheckStr, successMessage);
+      break;
     }
   }
 
@@ -68,22 +72,17 @@ public class ColumnsController {
     final String colNamesStr = String.join(", ", colNames);
     final String createIdxString = "CREATE " + isUniqueStr + "INDEX " +
         idxName + " ON " + this.tableName + " (" + colNamesStr + ")";
-    this.executeStatement(createIdxString);
+    final String successMessage = "created index " + idxName + " for table " +
+        this.tableName;
+    executeStatement(createIdxString, successMessage);
   }
 
   public void dropIndex(final String idxName) throws SQLException {
     final String dropIdxString = "ALTER TABLE " + this.tableName +
         " DROP INDEX " + idxName;
-    this.executeStatement(dropIdxString);
-  }
-
-  private void executeStatement(final String stmtString)
-      throws SQLException {
-    try (final Statement stmt = getConn().createStatement()) {
-      stmt.execute(stmtString);
-      System.out.println("Successfully altered table " +
-          this.tableName);
-    }
+    final String successMessage = "dropped index" + idxName + " from table " +
+        this.tableName;
+    executeStatement(dropIdxString, successMessage);
   }
 
 }
