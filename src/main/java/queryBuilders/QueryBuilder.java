@@ -3,8 +3,6 @@ package queryBuilders;
 import java.sql.*;
 import java.util.function.Consumer;
 
-import static src.ConnectionSingleton.*;
-
 public abstract class QueryBuilder<T> {
 
   protected final StringBuilder constraintsSB = new StringBuilder();
@@ -17,8 +15,7 @@ public abstract class QueryBuilder<T> {
 
   protected abstract String getStatement();
 
-  protected abstract T getOperationRes(final Statement stmt,
-                                       final String queryStr) throws SQLException;
+  protected abstract T getOperationRes(final String queryStr) throws SQLException;
 
   public QueryBuilder<T> where(final String colName, final String operator,
                                final String value) {
@@ -61,15 +58,11 @@ public abstract class QueryBuilder<T> {
     this.constraintsSB.append(keyword).append(expression);
   }
 
-  public void execute(final Consumer<T> fn) {
-    try (final Statement stmt = getConn().createStatement()) {
+  public void execute(final Consumer<T> fn) throws SQLException {
       final String queryStr = this.getStatement();
       System.out.println(queryStr);
-      final T res = this.getOperationRes(stmt, queryStr);
+      final T res = this.getOperationRes(queryStr);
       fn.accept(res);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
   }
 
 }

@@ -1,8 +1,9 @@
 package queryBuilders;
 
+import static src.StatementExecutor.*;
+
 import java.sql.*;
 import java.util.*;
-import java.util.function.Function;
 
 public final class UpdateQueryBuilder extends QueryBuilder<Integer> {
 
@@ -18,9 +19,8 @@ public final class UpdateQueryBuilder extends QueryBuilder<Integer> {
         this.constraintsSB;
   }
 
-  protected Integer getOperationRes(Statement stmt, String queryStr)
-      throws SQLException {
-    return stmt.executeUpdate(queryStr);
+  protected Integer getOperationRes(final String queryStr) throws SQLException {
+    return executeUpdateStatement(queryStr);
   }
 
   public UpdateQueryBuilder set(final String colName, final String colValue) {

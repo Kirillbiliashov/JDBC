@@ -3,12 +3,12 @@ package src;
 import java.sql.*;
 import java.util.List;
 
-import static src.Helpers.*;
+import static src.StatementExecutor.*;
 
 public class ColumnsController {
 
-  private String tableName;
-  private List<Column> columnsList;
+  private final String tableName;
+  private final List<Column> columnsList;
 
   public ColumnsController(final String tableName, final List<Column> columnsList) {
     this.tableName = tableName;

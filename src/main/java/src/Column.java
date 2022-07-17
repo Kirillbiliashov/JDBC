@@ -36,12 +36,10 @@ public class Column {
 
   protected void setUnique() {
     this.isUnique = true;
-
   }
 
   protected void setAutoIncrement() {
     this.isAutoIncrement = true;
-
   }
 
   protected void setDefaultValue(final String defaultValue) {
@@ -50,7 +48,6 @@ public class Column {
 
   protected void setPrimaryKey() {
     this.isPrimaryKey = true;
-
   }
 
   protected void setReferenceCol(final String tableName,

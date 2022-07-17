@@ -1,5 +1,7 @@
 package queryBuilders;
 
+import static src.StatementExecutor.*;
+
 import java.sql.*;
 
 public final class DeleteQueryBuilder extends QueryBuilder<Integer> {
@@ -11,8 +13,8 @@ public final class DeleteQueryBuilder extends QueryBuilder<Integer> {
     return "DELETE FROM " + this.tableName + this.constraintsSB;
   }
 
-  protected Integer getOperationRes(Statement stmt, String queryStr)
-      throws SQLException {
-    return stmt.executeUpdate(queryStr);
+  protected Integer getOperationRes(final String queryStr) throws SQLException {
+    return executeUpdateStatement(queryStr);
   }
+
 }

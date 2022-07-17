@@ -1,5 +1,7 @@
 package queryBuilders;
 
+import static src.StatementExecutor.*;
+
 import java.sql.*;
 
 public final class SelectQueryBuilder extends QueryBuilder<ResultSet> {
@@ -23,9 +25,8 @@ public final class SelectQueryBuilder extends QueryBuilder<ResultSet> {
         tableName + constraintsSB;
   }
 
-  protected ResultSet getOperationRes(Statement stmt, String queryStr)
-      throws SQLException {
-    return stmt.executeQuery(queryStr);
+  protected ResultSet getOperationRes(final String queryStr) throws SQLException {
+    return executeQueryStatement(queryStr);
   }
 
   public SelectQueryBuilder where(final String colName, final String operator,

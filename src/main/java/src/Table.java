@@ -5,8 +5,7 @@ import queryBuilders.*;
 import java.sql.*;
 import java.util.*;
 
-import static src.ConnectionSingleton.*;
-import static src.Helpers.*;
+import static src.StatementExecutor.*;
 
 public class Table {
 
@@ -53,9 +52,9 @@ public class Table {
   }
 
   public void drop() throws SQLException {
-    final String sqlStr = "DROP TABLE IF EXISTS " + this.tableName;
+    final String dropTableStr = "DROP TABLE IF EXISTS " + this.tableName;
     final String successMessage = "table successfully dropped from the database";
-    executeStatement(sqlStr, successMessage);
+    executeStatement(dropTableStr, successMessage);
   }
 
   public ColumnsController columns() {
@@ -72,13 +71,11 @@ public class Table {
   }
 
   public void insert(final String[] values) throws SQLException {
-    try (final Statement stmt = getConn().createStatement(
-        ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
-      final ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName);
-      rs.moveToInsertRow();
-      this.createNewRow(values, rs);
-      rs.insertRow();
-    }
+    final String queryStr = "SELECT * FROM " + this.tableName;
+    final ResultSet rs = executeQueryStatement(queryStr);
+    rs.moveToInsertRow();
+    this.createNewRow(values, rs);
+    rs.insertRow();
   }
 
   public SelectQueryBuilder select() {
@@ -102,9 +99,7 @@ public class Table {
   private List<String> getInsertCols() {
     final List<String> insertColNames = new ArrayList<>(this.colsCount);
     for (final Column column : this.columnsList) {
-      if (column.isAutoIncrement()) {
-        insertColNames.add(column.getName());
-      }
+      if (column.isAutoIncrement()) insertColNames.add(column.getName());
     }
     return insertColNames;
   }
