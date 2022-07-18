@@ -1,3 +1,5 @@
+package src;
+
 import controllers.*;
 import org.junit.jupiter.api.*;
 import src.SQLTableLogger;
