@@ -157,7 +157,6 @@ public class SelectQueryTest {
 
   @Test
   void testWhereAnySelect() {
-    final int EXP_RECORDS_COUNT = 3;
     try {
       new StudentsTableController().instantiateTable().getTable()
           .select("LastName", "FirstName", "UniversityGroup")
