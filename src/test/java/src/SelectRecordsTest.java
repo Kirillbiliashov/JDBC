@@ -14,7 +14,7 @@ public class SelectRecordsTest {
   private final Table studentsTable;
   private final Table groupsTable;
 
-  public SelectRecordsTest() throws Exception {
+  public SelectRecordsTest() {
     studentsTable = new StudentsTableController().instantiateTable().getTable();
     groupsTable = new GroupsTableController().instantiateTable().getTable();
   }
@@ -175,20 +175,66 @@ public class SelectRecordsTest {
     }
   }
 
-  private void resultSetConsumer(ResultSet rs,
-                                 final ExpectedStatementResults expRes) {
+  @Test
+  void testSelfJoin() {
     try {
-      SQLTableLogger.create(rs).printTable();
-      rs.last();
-      assertEquals(expRes.getExpRecordsCount(), rs.getRow());
-      final String[] expColNames = expRes.getExpColNames();
-      if (expColNames == null) return;
-      final ResultSetMetaData metadata = rs.getMetaData();
-      for (int i = 0; i < expColNames.length; i++) {
-        assertEquals(expColNames[i], metadata.getColumnLabel(i + 1));
-      }
+      studentsTable.select("A.LastName", "B.LastName", "A.UniversityGroup")
+          .as("A.LastName", "LastName1")
+          .as("B.LastName", "LastName2")
+          .as("A.UniversityGroup", "UniversityGroup")
+          .selfJoin().where("A.Id", "<>", "B.Id")
+          .and("A.UniversityGroup", "=", "B.UniversityGroup")
+          .execute(rs -> this.resultSetConsumer(rs, SELF_JOIN));
     } catch (SQLException e) {
       e.printStackTrace();
+    }
+  }
+
+  @Test
+  void testSelectInto() {
+    try {
+      final Table males = new Table("Males",
+          new String[]{"Id", "LastName", "FirstName", "HomeAddress"},
+          new String[]{"int", "varchar(20)", "varchar(20)", "varchar(50)"})
+          .column("Id").autoIncrement().primaryKey()
+          .setNotNullColumns();
+      males.create();
+      SelectQueryBuilder queryBuilder = studentsTable
+          .select("LastName", "FirstName", "Address")
+          .where("Gender", "=", "'Male'");
+      studentsTable.insertInto("Males", queryBuilder, "LastName",
+          "FirstName", "HomeAddress");
+      males.select().execute(rs -> this.resultSetConsumer(rs, SELECT_INSERT));
+      males.drop();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  void testHaving() {
+    try {
+      studentsTable.select("COUNT(UniversityGroup)", "IniversityGroup")
+          .as("COUNT(UniversityGroup)", "Count")
+          .groupBy("UniversityGroup")
+          .having("Count", ">", "1")
+          .execute(rs -> this.resultSetConsumer(rs, HAVING));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void resultSetConsumer(ResultSet rs,
+                                 final ExpectedStatementResults expRes)
+      throws SQLException {
+    SQLTableLogger.create(rs).printTable();
+    rs.last();
+    assertEquals(expRes.getExpRecordsCount(), rs.getRow());
+    final String[] expColNames = expRes.getExpColNames();
+    if (expColNames == null) return;
+    final ResultSetMetaData metadata = rs.getMetaData();
+    for (int i = 0; i < expColNames.length; i++) {
+      assertEquals(expColNames[i], metadata.getColumnLabel(i + 1));
     }
   }
 

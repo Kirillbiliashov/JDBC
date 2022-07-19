@@ -19,13 +19,9 @@ public class RecordsCountTest {
   private void countRecords(final TableController controller) throws Exception {
     controller.instantiateTable().populateTable().getTable().select()
         .execute(rs -> {
-          try {
             SQLTableLogger.create(rs).printTable();
             rs.last();
             this.recordsCount = rs.getRow();
-          } catch (SQLException e) {
-            e.printStackTrace();
-          }
         });
   }
 
