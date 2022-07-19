@@ -11,24 +11,15 @@ public class ModifyRecordsTest {
 
   private final static StudentsTableController controller = new StudentsTableController();
   private static final int EXP_RECORDS_COUNT = 8;
-  private static Table studentsTable;
-
-  @BeforeAll
-  static void instantiateTable() {
-    try {
-      studentsTable = controller.instantiateTable().getTable();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
+  private static Table studentsTable = controller.instantiateTable().getTable();
 
   @Test
   void deleteSingleStudentTest() {
-    final int EXP_ROWS_MODIFIED = 1;
+    final int EXP_ROWS_DELETED = 1;
     try {
       studentsTable.delete()
           .where("LastName", "=", "'Gonzalez'")
-          .execute(count -> assertEquals(EXP_ROWS_MODIFIED, count));
+          .execute(count -> assertEquals(EXP_ROWS_DELETED, count));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -36,11 +27,11 @@ public class ModifyRecordsTest {
 
   @Test
   void deleteMultipleStudentsTest() {
-    final int EXP_ROWS_MODIFIED = 2;
+    final int EXP_ROWS_DELETED = 2;
     try {
       studentsTable.delete()
           .where("Gender", "=", "'Female'")
-          .execute(count -> assertEquals(EXP_ROWS_MODIFIED, count));
+          .execute(count -> assertEquals(EXP_ROWS_DELETED, count));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -48,11 +39,11 @@ public class ModifyRecordsTest {
 
   @Test
   void updateSingleStudentTest() {
-    final int EXP_ROWS_MODIFIED = 1;
+    final int EXP_ROWS_UPDATED = 1;
     try {
       studentsTable.update().set("LastName", "'Brannagan'")
           .where("FirstName", "=", "'Finn'")
-          .execute(count -> assertEquals(EXP_ROWS_MODIFIED, count));
+          .execute(count -> assertEquals(EXP_ROWS_UPDATED, count));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -60,11 +51,11 @@ public class ModifyRecordsTest {
 
   @Test
   void updateMultipleStudentsTest() {
-    final int EXP_ROWS_MODIFIED = 2;
+    final int EXP_ROWS_UPDATED = 2;
     try {
       studentsTable.update().set("Address", "'Black Square street'")
           .where("Gender", "=", "'Female'")
-          .execute(count -> assertEquals(EXP_ROWS_MODIFIED, count));
+          .execute(count -> assertEquals(EXP_ROWS_UPDATED, count));
     } catch (Exception e) {
       e.printStackTrace();
     }

@@ -3,10 +3,10 @@ package src;
 import controllers.*;
 import org.junit.jupiter.api.*;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static src.StatementExecutor.executeQueryStatement;
 
 public class AlterTableTest {
 
@@ -23,7 +23,7 @@ public class AlterTableTest {
   }
 
   @Test
-  void addColumnTest() {
+  void testAddColumn() {
     try {
       studentsTable.columns().add("Hobby", "varchar(200)");
       studentsTable.select().execute(rs -> {
@@ -36,21 +36,20 @@ public class AlterTableTest {
   }
 
   @Test
-  void modifyColumnTest() {
+  void testModifyColumn() {
     final int COL_IDX = 6;
     final String NEW_TYPE = "TINYTEXT";
     try {
       studentsTable.columns().modify("Address", NEW_TYPE);
-      studentsTable.select().execute(rs -> {
-        assertEquals(NEW_TYPE, rs.getMetaData().getColumnTypeName(COL_IDX));
-      });
+      studentsTable.select().execute(rs -> assertEquals(NEW_TYPE,
+          rs.getMetaData().getColumnTypeName(COL_IDX)));
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
   @Test
-  void dropColumnTest() {
+  void testDropColumn() {
     try {
       studentsTable.columns().drop("Address");
       studentsTable.select().execute(rs -> {
@@ -63,12 +62,15 @@ public class AlterTableTest {
   }
 
   @Test
-  void createIndexTest() {
+  void testCreateIndex() {
     final String IDX_NAME = "Last_Name_Idx";
     try {
       studentsTable.columns().createIndex(IDX_NAME, true, "LastName");
-      final String showIndexStr = "SHOW INDEX FROM Students";
-      final ResultSet rs = StatementExecutor.executeQueryStatement(showIndexStr);
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    final String showIndexStr = "SHOW INDEX FROM Students";
+    try(final ResultSet rs = executeQueryStatement(showIndexStr)) {
       boolean indexFound = false;
       while (rs.next()) {
         if (IDX_NAME.equals(rs.getString("Key_Name"))) {

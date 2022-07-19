@@ -179,10 +179,9 @@ public class SelectRecordsTest {
   void testSelfJoin() {
     try {
       studentsTable.select("A.LastName", "B.LastName", "A.UniversityGroup")
-          .as("A.LastName", "LastName1")
-          .as("B.LastName", "LastName2")
-          .as("A.UniversityGroup", "UniversityGroup")
-          .selfJoin().where("A.Id", "<>", "B.Id")
+          .as("A.LastName", "LastName1").as("B.LastName", "LastName2")
+          .as("A.UniversityGroup", "UniversityGroup").selfJoin()
+          .where("A.Id", "<>", "B.Id")
           .and("A.UniversityGroup", "=", "B.UniversityGroup")
           .execute(rs -> this.resultSetConsumer(rs, SELF_JOIN));
     } catch (SQLException e) {
@@ -196,14 +195,13 @@ public class SelectRecordsTest {
       final Table males = new Table("Males",
           new String[]{"Id", "LastName", "FirstName", "HomeAddress"},
           new String[]{"int", "varchar(20)", "varchar(20)", "varchar(50)"})
-          .column("Id").autoIncrement().primaryKey()
-          .setNotNullColumns();
+          .column("Id").autoIncrement().primaryKey().setNotNullColumns();
       males.create();
-      SelectQueryBuilder queryBuilder = studentsTable
+      final SelectQueryBuilder queryBuilder = studentsTable
           .select("LastName", "FirstName", "Address")
           .where("Gender", "=", "'Male'");
-      studentsTable.insertInto("Males", queryBuilder, "LastName",
-          "FirstName", "HomeAddress");
+      studentsTable.insertInto("Males", queryBuilder, "LastName", "FirstName",
+          "HomeAddress");
       males.select().execute(rs -> this.resultSetConsumer(rs, SELECT_INSERT));
       males.drop();
     } catch (Exception e) {
@@ -214,10 +212,9 @@ public class SelectRecordsTest {
   @Test
   void testHaving() {
     try {
-      studentsTable.select("COUNT(UniversityGroup)", "IniversityGroup")
+      studentsTable.select("COUNT(UniversityGroup)", "UniversityGroup")
           .as("COUNT(UniversityGroup)", "Count")
-          .groupBy("UniversityGroup")
-          .having("Count", ">", "1")
+          .groupBy("UniversityGroup").having("Count", ">", "1")
           .execute(rs -> this.resultSetConsumer(rs, HAVING));
     } catch (Exception e) {
       e.printStackTrace();
